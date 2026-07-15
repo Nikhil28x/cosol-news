@@ -3,6 +3,7 @@ import type { AuthUser, FeedItem, ImpactKind, Sentiment, SignalType } from '$lib
 import { db } from '../db';
 import { accounts, newsItems } from '../db/schema';
 import { accessibleAccountIds } from './access';
+import { clusterStories } from '$lib/watch/cluster';
 
 const feedColumns = {
 	id: newsItems.id,
@@ -82,6 +83,8 @@ function shape(r: FeedRow): FeedItem {
 
 export interface FeedOpts {
 	accountId?: string;
+	/** further restrict to this set of account ids (already within the user's scope) */
+	accountIds?: string[];
 	segment?: string;
 	signalType?: string;
 	sentiment?: string;
@@ -91,6 +94,8 @@ export interface FeedOpts {
 	offset?: number;
 	/** priority-first ordering for the dashboard "key signals" table */
 	priorityFirst?: boolean;
+	/** collapse same-event coverage into one lead + moreSources (default true) */
+	cluster?: boolean;
 }
 
 const publishedOrFetched = sql`coalesce(${newsItems.publishedAt}, ${newsItems.fetchedAt})`;
@@ -101,6 +106,10 @@ export async function getFeed(user: AuthUser, opts: FeedOpts = {}): Promise<Feed
 
 	const conds: SQL[] = [eq(accounts.isActive, true)];
 	if (ids !== 'all') conds.push(inArray(newsItems.accountId, ids));
+	if (opts.accountIds) {
+		if (opts.accountIds.length === 0) return [];
+		conds.push(inArray(newsItems.accountId, opts.accountIds));
+	}
 	if (opts.accountId) conds.push(eq(newsItems.accountId, opts.accountId));
 	if (opts.segment) conds.push(eq(accounts.segment, opts.segment));
 	if (opts.signalType) conds.push(eq(newsItems.signalType, opts.signalType as SignalType));
@@ -111,18 +120,43 @@ export async function getFeed(user: AuthUser, opts: FeedOpts = {}): Promise<Feed
 		conds.push(gte(newsItems.fetchedAt, since));
 	}
 
+	// The same article legitimately exists under several accounts (news_items is unique
+	// per (account, url_hash), not globally), so the combined feed would otherwise show
+	// it more than once. Dedup in SQL: `winners` picks one news_item id per url_hash —
+	// the best copy (priority-first, then most recent) — via DISTINCT ON; the main query
+	// joins to that set and applies the feed's own ranking + pagination. Doing this in
+	// SQL (rather than trimming an over-fetched page in JS) means limit/offset always
+	// operate on already-unique rows, so a page can never come back short just because
+	// duplicates crowded the window. `winners` selects only the id, so wrapping it in a
+	// subquery can't collide with accounts.id.
+	const winners = db
+		.selectDistinctOn([newsItems.urlHash], { id: newsItems.id })
+		.from(newsItems)
+		.innerJoin(accounts, eq(newsItems.accountId, accounts.id))
+		.where(conds.length ? and(...conds) : undefined)
+		.orderBy(newsItems.urlHash, desc(newsItems.isPriority), desc(publishedOrFetched))
+		.as('winners');
+
 	const order = opts.priorityFirst
 		? [desc(newsItems.isPriority), desc(publishedOrFetched)]
 		: [desc(publishedOrFetched)];
+
+	const limit = opts.limit ?? 40;
+	// Story clustering (default on) collapses same-event coverage from different publishers
+	// into one lead after this query, which shrinks the count — so over-fetch a little, then
+	// slice back to `limit` clusters. Callers needing raw article rows pass cluster:false.
+	const doCluster = opts.cluster !== false;
+	const take = doCluster ? Math.min(limit * 2, 200) : limit;
 
 	const rows = await db
 		.select(feedColumns)
 		.from(newsItems)
 		.innerJoin(accounts, eq(newsItems.accountId, accounts.id))
-		.where(conds.length ? and(...conds) : undefined)
+		.innerJoin(winners, eq(newsItems.id, winners.id))
 		.orderBy(...order)
-		.limit(opts.limit ?? 40)
+		.limit(take)
 		.offset(opts.offset ?? 0);
 
-	return rows.map((r) => shape(r as FeedRow));
+	const items = rows.map((r) => shape(r as FeedRow));
+	return doCluster ? clusterStories(items).slice(0, limit) : items;
 }

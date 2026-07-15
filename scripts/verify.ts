@@ -43,7 +43,7 @@ async function forEmail(email: string) {
 	console.log('segments         :', counts.segments.map((s) => `${s.label}:${s.count}`).join('  '));
 }
 
-await forEmail('vishal@cosol.in');
+await forEmail('admin@cosol.in');
 await forEmail('ashwini@cosol.in');
 await forEmail('ojas@cosol.in');
 await forEmail('sowmya1@cosol.in');

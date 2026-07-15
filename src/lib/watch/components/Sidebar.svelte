@@ -16,7 +16,11 @@
 		showAdmin?: boolean;
 	} = $props();
 
-	const activeSegment = $derived(new URLSearchParams(search).get('segment'));
+	// Only the Accounts page uses ?segment= as navigation; the feed's industry filter
+	// also sets ?segment= but shouldn't light up the accounts-segment nav rows.
+	const activeSegment = $derived(
+		path === '/watch/accounts' ? new URLSearchParams(search).get('segment') : null
+	);
 
 	const segCounts = $derived.by(() => {
 		const m = new Map<string, number>();
@@ -27,7 +31,8 @@
 	const nav = [
 		{ href: '/watch/dashboard', label: 'Dashboard', icon: '▤' },
 		{ href: '/watch/feed', label: 'News Feed', icon: '📰' },
-		{ href: '/watch/accounts', label: 'Accounts', icon: '🏢' }
+		{ href: '/watch/accounts', label: 'Accounts', icon: '🏢' },
+		{ href: '/watch/tech', label: 'General Tech', icon: '🤖' }
 	];
 </script>
 

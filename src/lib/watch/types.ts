@@ -95,6 +95,14 @@ export interface AccountSummary extends AccountRef {
 	lastSignalAt?: Date | null;
 }
 
+/** One additional outlet covering the same story as a feed item's lead article. */
+export interface StorySource {
+	id: string;
+	source: string | null;
+	url: string;
+	title: string;
+}
+
 export interface FeedItem {
 	id: string;
 	title: string;
@@ -112,6 +120,8 @@ export interface FeedItem {
 	trendPct: number | null;
 	isPriority: boolean;
 	account: AccountRef;
+	/** Other publishers covering the same event, collapsed into this lead (see clusterStories). */
+	moreSources?: StorySource[];
 }
 
 export interface SegmentCount {

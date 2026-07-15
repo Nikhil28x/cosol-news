@@ -15,6 +15,13 @@
       "when": 1784107881576,
       "tag": "0001_add_news_summaries",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784136915876,
+      "tag": "0002_add_general_news",
+      "breakpoints": true
     }
   ]
 }

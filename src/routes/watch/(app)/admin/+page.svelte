@@ -2,10 +2,14 @@
 	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
 	import { segmentDef } from '$lib/watch/segments';
+	import Monogram from '$lib/watch/components/Monogram.svelte';
 	import { relativeTime } from '$lib/watch/format';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	let ingesting = $state(false);
+	let refreshing = $state(false);
+	let selectedId = $state('');
+	const selected = $derived(data.accounts.find((a) => a.id === selectedId) ?? null);
 </script>
 
 <svelte:head><title>Admin · COSOL Customer Watch</title></svelte:head>
@@ -37,26 +41,71 @@
 	<div class="ov__card"><span>{data.overview.runs}</span><small>Ingestion runs</small></div>
 </section>
 
-<!-- Ingestion -->
+<!-- Research agents + accounts (unified): pick an account to refresh, or run all -->
 <section class="card blk">
-	<div class="card__head">
+	<div class="card__head agent-head">
 		<span class="card__title">🛰 Research Agents</span>
-		<form
-			method="POST"
-			action="?/ingestAll"
-			use:enhance={() => {
-				ingesting = true;
-				return async ({ update }) => {
-					await update();
-					ingesting = false;
-				};
-			}}
-		>
-			<button class="btn btn--accent btn--sm" disabled={ingesting}>
-				{ingesting ? 'Running…' : 'Run ingestion (all)'}
-			</button>
-		</form>
+		<div class="agent-tools">
+			<form
+				method="POST"
+				action="?/ingestOne"
+				class="refresh-form"
+				use:enhance={() => {
+					refreshing = true;
+					return async ({ update }) => {
+						await update({ reset: false });
+						refreshing = false;
+					};
+				}}
+			>
+				<select
+					class="input sel-acct"
+					name="accountId"
+					bind:value={selectedId}
+					aria-label="Select account to refresh"
+					required
+				>
+					<option value="" disabled>Select an account…</option>
+					{#each data.accounts as a (a.id)}
+						<option value={a.id}>{a.name}</option>
+					{/each}
+				</select>
+				<button class="btn btn--sm" disabled={!selectedId || refreshing}>
+					{refreshing ? 'Refreshing…' : 'Refresh'}
+				</button>
+			</form>
+			<form
+				method="POST"
+				action="?/ingestAll"
+				use:enhance={() => {
+					ingesting = true;
+					return async ({ update }) => {
+						await update();
+						ingesting = false;
+					};
+				}}
+			>
+				<button class="btn btn--accent btn--sm" disabled={ingesting}>
+					{ingesting ? 'Running…' : 'Run ingestion (all)'}
+				</button>
+			</form>
+		</div>
 	</div>
+
+	{#if selected}
+		<a class="sel" href="/watch/accounts/{selected.slug}">
+			<Monogram name={selected.name} segment={selected.segment} slug={selected.slug} size={34} />
+			<div class="sel__id">
+				<strong>{selected.name}</strong>
+				<small
+					>{segmentDef(selected.segment).label}{#if selected.pod}
+						· POD {selected.pod}{/if}</small
+				>
+			</div>
+			<span class="sel__count">{selected.newsCount} news items</span>
+			<span class="sel__open">Open →</span>
+		</a>
+	{/if}
 	<div class="card__body pad0">
 		<div class="table-wrap">
 			<table class="tbl">
@@ -139,42 +188,6 @@
 								</form>
 							</td>
 						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	</div>
-</section>
-
-<!-- Accounts -->
-<section class="card blk">
-	<div class="card__head"><span class="card__title">🏢 Accounts</span></div>
-	<div class="card__body pad0">
-		<div class="table-wrap">
-			<table class="tbl">
-				<thead>
-					<tr><th>Account</th><th>Segment</th><th>POD</th><th>News</th><th></th></tr>
-				</thead>
-				<tbody>
-					{#each data.accounts as a (a.id)}
-						<tr>
-							<td><a class="link" href="/watch/accounts/{a.slug}">{a.name}</a></td>
-							<td class="muted">{segmentDef(a.segment).label}</td>
-							<td class="muted">{a.pod ?? '—'}</td>
-							<td>{a.newsCount}</td>
-							<td class="actions">
-								<form method="POST" action="?/ingestOne" use:enhance>
-									<input type="hidden" name="accountId" value={a.id} />
-									<button class="btn btn--sm">Refresh</button>
-								</form>
-							</td>
-						</tr>
-					{:else}
-						<tr
-							><td colspan="5" class="muted pad"
-								>No accounts yet — seed them from the account list.</td
-							></tr
-						>
 					{/each}
 				</tbody>
 			</table>
@@ -269,6 +282,70 @@
 	}
 	.tbl tbody tr:last-child td {
 		border-bottom: 0;
+	}
+	.agent-head {
+		gap: 12px;
+		flex-wrap: wrap;
+	}
+	.agent-tools {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	.refresh-form {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+	}
+	.sel-acct {
+		min-width: 240px;
+		height: 34px;
+	}
+	.sel {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin: 14px 18px 2px;
+		padding: 11px 14px;
+		border: 1px solid var(--border);
+		border-radius: 12px;
+		background: var(--surface-2);
+		transition:
+			box-shadow 0.15s,
+			border-color 0.15s;
+	}
+	.sel:hover {
+		box-shadow: var(--shadow-sm);
+		border-color: var(--border-strong);
+	}
+	.sel__id {
+		min-width: 0;
+		flex: 1;
+	}
+	.sel__id strong {
+		display: block;
+		font-weight: 700;
+		font-size: 14px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.sel__id small {
+		color: var(--text-3);
+		font-size: 12px;
+	}
+	.sel__count {
+		font-size: 12.5px;
+		font-weight: 600;
+		color: var(--text-2);
+		white-space: nowrap;
+	}
+	.sel__open {
+		font-size: 12.5px;
+		font-weight: 700;
+		color: var(--accent-ink);
+		white-space: nowrap;
 	}
 	tr.inactive {
 		opacity: 0.55;

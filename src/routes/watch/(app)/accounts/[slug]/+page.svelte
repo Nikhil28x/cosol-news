@@ -23,7 +23,7 @@
 <a class="back" href="/watch/accounts">← Accounts</a>
 
 <header class="head card">
-	<Monogram name={a.name} segment={a.segment} size={56} />
+	<Monogram name={a.name} segment={a.segment} slug={a.slug} logoUrl={a.logoUrl} size={56} />
 	<div class="head__id">
 		<h2>{a.name}</h2>
 		<div class="head__meta">

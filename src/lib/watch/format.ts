@@ -36,13 +36,28 @@ export function formatDate(d: Date | string | null | undefined): string {
 }
 
 /**
- * Image for a news tile: the article's own image when the source provided one,
- * else a deterministic photo (stable per item id) so the magazine layout always
- * has imagery. The tile also renders an accent gradient behind, so a failed image
- * degrades gracefully.
+ * Real article image for a news tile (resolved from the publisher's og:image during
+ * ingest), or null — in which case the tile shows its industry-accent gradient. No
+ * random placeholder photos.
  */
-export function newsImage(item: { id: string; imageUrl?: string | null }): string {
-	if (item.imageUrl) return item.imageUrl;
-	const seed = item.id.replace(/[^a-z0-9]/gi, '').slice(0, 16) || 'news';
-	return `https://picsum.photos/seed/${seed}/1000/640`;
+export function newsImage(item: { imageUrl?: string | null }): string | null {
+	return item.imageUrl ?? null;
+}
+
+// Themed stock placeholders (in static/stock/) used when a news item has no fetched
+// image. One per segment; unknown segments fall back to "other".
+const STOCK_SEGMENTS = new Set([
+	'financial_services',
+	'government_public',
+	'technology',
+	'manufacturing',
+	'pharma_healthcare',
+	'professional_services',
+	'telecom_media',
+	'other'
+]);
+
+export function stockImage(segment: string | null | undefined): string {
+	const key = segment && STOCK_SEGMENTS.has(segment) ? segment : 'other';
+	return `/stock/${key}.jpg`;
 }

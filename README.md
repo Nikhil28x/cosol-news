@@ -39,7 +39,7 @@ npm run watch:ingest        # fetch + classify news for every account
 npm run dev                 # http://localhost:5173  → redirects to /watch
 ```
 
-Sign in with an email from `data/credentials.csv`. `vishal@cosol.in` is the admin
+Sign in with an email from `data/credentials.csv`. `admin@cosol.in` is the admin
 (sees all accounts + an **"View as"** control to preview any member's scoped view).
 
 ## Layout

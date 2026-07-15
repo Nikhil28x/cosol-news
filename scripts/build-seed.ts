@@ -177,7 +177,7 @@ const emailFor = (owner: string) => owner.toLowerCase().replace(/[^a-z0-9]/g, ''
 
 const users = [
 	{
-		email: 'vishal@cosol.in',
+		email: 'admin@cosol.in',
 		fullName: 'Vishal',
 		role: 'admin',
 		pod: 'Leadership',

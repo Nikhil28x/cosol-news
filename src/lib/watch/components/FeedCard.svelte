@@ -16,7 +16,13 @@
 			class="feed-item__mono"
 			aria-label={item.account.name}
 		>
-			<Monogram name={item.account.name} segment={item.account.segment} size={40} />
+			<Monogram
+				name={item.account.name}
+				segment={item.account.segment}
+				slug={item.account.slug}
+				logoUrl={item.account.logoUrl}
+				size={40}
+			/>
 		</a>
 	{/if}
 

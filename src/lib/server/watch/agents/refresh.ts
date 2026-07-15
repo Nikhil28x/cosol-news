@@ -8,6 +8,8 @@ import { db } from '../db';
 import { users } from '../db/schema';
 import type { User } from '../db/schema';
 import { getDashboardDigest, invalidateTodaySummaries } from '../data/digest';
+import { enrichImagesForRecent } from './images';
+import { ingestGeneralNews } from './general-news';
 import { ingestAllAccounts, type IngestResult } from './orchestrator';
 
 function toAuthUser(u: User): AuthUser {
@@ -27,6 +29,8 @@ export interface RefreshResult {
 	newItems: number;
 	digests: number;
 	errors: number;
+	images: number;
+	generalNews: number;
 	ingest: IngestResult[];
 }
 
@@ -40,7 +44,23 @@ export async function refreshAll(
 		limit: opts.limit
 	});
 
-	// 2) Drop today's cached digests so they reflect the freshly-fetched news.
+	// 2) Best-effort: resolve real article images for recent items (capped, guarded).
+	let images = { scanned: 0, resolved: 0 };
+	try {
+		images = await enrichImagesForRecent({ cap: 200, concurrency: 6 });
+	} catch {
+		/* image resolution is best-effort; tiles fall back to the accent gradient */
+	}
+
+	// 2b) Refresh general AI/tech industry news (shared across all users, not scoped).
+	let generalNewsFresh = 0;
+	try {
+		generalNewsFresh = (await ingestGeneralNews({ imageCap: 40 })).fresh;
+	} catch {
+		/* best-effort */
+	}
+
+	// 3) Drop today's cached digests so they reflect the freshly-fetched news.
 	await invalidateTodaySummaries();
 
 	// 3) Warm the cache: regenerate each active user's dashboard digest (one Gemini
@@ -59,6 +79,8 @@ export async function refreshAll(
 		accounts: ingest.length,
 		newItems: ingest.reduce((n, r) => n + r.fresh, 0),
 		errors: ingest.filter((r) => r.status === 'error').length,
+		images: images.resolved,
+		generalNews: generalNewsFresh,
 		digests,
 		ingest
 	};

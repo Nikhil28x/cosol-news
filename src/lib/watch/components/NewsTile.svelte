@@ -1,16 +1,38 @@
 <script lang="ts">
 	import type { FeedItem } from '$lib/watch/types';
 	import { segmentDef } from '$lib/watch/segments';
-	import { newsImage, relativeTime } from '$lib/watch/format';
+	import { newsImage, stockImage, relativeTime } from '$lib/watch/format';
 
 	let { item, variant = 'card' }: { item: FeedItem; variant?: 'hero' | 'wide' | 'card' } = $props();
 
 	const seg = $derived(segmentDef(item.account.segment));
 	const overlay = $derived(variant !== 'card');
 	const when = $derived(relativeTime(item.publishedAt ?? item.fetchedAt));
+	// Real fetched image, else a themed stock placeholder (the accent gradient shows
+	// behind if even the placeholder fails to load).
+	const img = $derived(newsImage(item) ?? stockImage(item.account.segment));
 
-	function hideBroken(e: Event) {
-		(e.currentTarget as HTMLImageElement).style.visibility = 'hidden';
+	// Other outlets covering the same story, collapsed into this lead by clusterStories.
+	const moreSources = $derived(item.moreSources ?? []);
+	const moreTip = $derived(
+		moreSources
+			.map((s) => s.source)
+			.filter(Boolean)
+			.join(' · ') || undefined
+	);
+
+	function markBroken(node: HTMLImageElement) {
+		node.style.visibility = 'hidden';
+	}
+	function onImgError(e: Event) {
+		markBroken(e.currentTarget as HTMLImageElement);
+	}
+	// onImgError is only attached at hydration, but an above-the-fold hero image can
+	// finish loading — and fail — during the SSR→hydration window, before the handler
+	// exists (Svelte never replays that missed error event). This action runs on mount
+	// and hides an image that already failed, so the accent gradient still shows.
+	function coverImage(node: HTMLImageElement) {
+		if (node.complete && node.naturalWidth === 0) markBroken(node);
 	}
 </script>
 
@@ -23,7 +45,10 @@
 	style="--accent:{seg.accent}"
 >
 	<div class="media">
-		<img src={newsImage(item)} alt="" loading="lazy" onerror={hideBroken} />
+		<!-- {#key img}: remount on src change so a reused tile never keeps a stale hide -->
+		{#key img}
+			<img src={img} alt="" loading="lazy" onerror={onImgError} use:coverImage />
+		{/key}
 		<span class="chip">{seg.icon} {seg.label}</span>
 		{#if overlay}
 			<div class="scrim"></div>
@@ -33,6 +58,11 @@
 					📍 {item.account.name} · {when}{#if item.source}
 						· {item.source}{/if}
 				</p>
+				{#if moreSources.length}
+					<span class="more more--overlay" title={moreTip}
+						>＋{moreSources.length} more source{moreSources.length > 1 ? 's' : ''}</span
+					>
+				{/if}
 			</div>
 		{/if}
 	</div>
@@ -40,6 +70,11 @@
 		<div class="body">
 			<h3 class="title">{item.title}</h3>
 			<p class="meta">📍 {item.account.name} · {when}</p>
+			{#if moreSources.length}
+				<span class="more" title={moreTip}
+					>＋{moreSources.length} more source{moreSources.length > 1 ? 's' : ''}</span
+				>
+			{/if}
 		</div>
 	{/if}
 </a>
@@ -175,6 +210,24 @@
 	}
 	.body .meta {
 		color: var(--text-3);
+	}
+
+	.more {
+		display: inline-block;
+		margin-top: 8px;
+		font-size: 11px;
+		font-weight: 700;
+		padding: 2px 9px;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--accent) 15%, transparent);
+		color: var(--accent-ink);
+		cursor: default;
+	}
+	.more--overlay {
+		margin-top: 10px;
+		background: rgba(255, 255, 255, 0.2);
+		color: #fff;
+		backdrop-filter: blur(4px);
 	}
 
 	@media (max-width: 640px) {

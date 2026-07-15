@@ -31,7 +31,7 @@ COSOL portfolio**: 131 accounts across 5 PODs (Ashwini, Shruthi, Ojas, Sowmya, S
   adversarial multi-agent review ran and its findings were fixed.
 
 **Sign in** (temp passwords in `data/credentials.csv`, git-ignored):
-`vishal@cosol.in` (admin — sees all + can "view as" anyone) and one member per POD
+`admin@cosol.in` (admin — sees all + can "view as" anyone) and one member per POD
 (`ashwini@cosol.in`, `shruthi@cosol.in`, `ojas@cosol.in`, `sowmya@cosol.in`,
 `sowmya1@cosol.in`).
 

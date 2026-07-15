@@ -3,14 +3,9 @@
 	import { SENTIMENTS, type Sentiment } from '$lib/watch/types';
 	import { relativeTime } from '$lib/watch/format';
 	import NewsTile from '$lib/watch/components/NewsTile.svelte';
+	import AiConsole from '$lib/watch/components/AiConsole.svelte';
 
 	let { data }: { data: PageData } = $props();
-	const c = $derived(data.counts);
-	const news = $derived(data.news);
-
-	const hero = $derived(news[0]);
-	const secondary = $derived(news.slice(1, 3));
-	const latest = $derived(news.slice(3, 12));
 
 	const sentimentClass = (s: Sentiment) =>
 		s === 'bullish' ? 'chip--pos' : s === 'bearish' ? 'chip--risk' : 'chip--neutral';
@@ -18,95 +13,102 @@
 
 <svelte:head><title>Dashboard · COSOL Customer Watch</title></svelte:head>
 
-<!-- KPI strip (instant, no AI) -->
-<section class="kpis">
-	<div class="kpi">
-		<span class="kpi__label">Customers Tracked</span>
-		<span class="kpi__value">{c.totalCustomers}</span>
-		<span class="kpi__foot pos">+{c.newThisMonth} added (30d)</span>
-	</div>
-	<div class="kpi">
-		<span class="kpi__label">News Today</span>
-		<span class="kpi__value">{c.newsToday}</span>
-		<span class="kpi__foot">fetched in last 24h</span>
-	</div>
-	<div class="kpi">
-		<span class="kpi__label">Total Articles</span>
-		<span class="kpi__value">{c.totalNews.toLocaleString()}</span>
-		<span class="kpi__foot">in the knowledge base</span>
-	</div>
-	<div class="kpi">
-		<span class="kpi__label">Sources Monitored</span>
-		<span class="kpi__value">{c.sourcesMonitored}</span>
-		<span class="kpi__foot">RSS publishers</span>
-	</div>
-</section>
+{#if data.mode === 'ai'}
+	<AiConsole kb={data.kb} suggestions={data.suggestions} />
+{:else}
+	{@const c = data.counts}
+	{@const news = data.news}
+	{@const hero = news[0]}
+	{@const secondary = news.slice(1, 3)}
+	{@const latest = news.slice(3, 12)}
 
-<!-- AI portfolio briefing (streams in) -->
-{#if c.totalCustomers > 0}
-	{#await data.digest then digest}
-		{#if digest}
-			<section class="card briefing">
-				<div class="briefing__head">
-					<span class="card__title">🧠 Portfolio Briefing</span>
-					<span class="chip {sentimentClass(digest.portfolioSentiment)}">
-						{SENTIMENTS[digest.portfolioSentiment].arrow}
-						{SENTIMENTS[digest.portfolioSentiment].label}
-					</span>
-					<span class="gen"
-						>Gemini · {digest.itemCount} articles · {relativeTime(digest.generatedAt)}</span
-					>
+	<section class="kpis">
+		<div class="kpi">
+			<span class="kpi__label">Customers Tracked</span>
+			<span class="kpi__value">{c.totalCustomers}</span>
+			<span class="kpi__foot pos">+{c.newThisMonth} added (30d)</span>
+		</div>
+		<div class="kpi">
+			<span class="kpi__label">News Today</span>
+			<span class="kpi__value">{c.newsToday}</span>
+			<span class="kpi__foot">fetched in last 24h</span>
+		</div>
+		<div class="kpi">
+			<span class="kpi__label">Total Articles</span>
+			<span class="kpi__value">{c.totalNews.toLocaleString()}</span>
+			<span class="kpi__foot">in the knowledge base</span>
+		</div>
+		<div class="kpi">
+			<span class="kpi__label">Sources Monitored</span>
+			<span class="kpi__value">{c.sourcesMonitored}</span>
+			<span class="kpi__foot">RSS publishers</span>
+		</div>
+	</section>
+
+	{#if c.totalCustomers > 0}
+		{#await data.digest then digest}
+			{#if digest}
+				<section class="card briefing">
+					<div class="briefing__head">
+						<span class="card__title">🧠 Portfolio Briefing</span>
+						<span class="chip {sentimentClass(digest.portfolioSentiment)}">
+							{SENTIMENTS[digest.portfolioSentiment].arrow}
+							{SENTIMENTS[digest.portfolioSentiment].label}
+						</span>
+						<span class="gen"
+							>Gemini · {digest.itemCount} articles · {relativeTime(digest.generatedAt)}</span
+						>
+					</div>
+					<p class="briefing__text">{digest.portfolioSummary}</p>
+				</section>
+			{/if}
+		{:catch}
+			<!-- briefing is best-effort; a transient failure just hides it -->
+		{/await}
+	{/if}
+
+	{#if news.length}
+		<section class="top-stories">
+			{#if hero}<NewsTile item={hero} variant="hero" />{/if}
+			{#if secondary.length}
+				<div class="secondary">
+					{#each secondary as item (item.id)}
+						<NewsTile {item} variant="wide" />
+					{/each}
 				</div>
-				<p class="briefing__text">{digest.portfolioSummary}</p>
-			</section>
-		{/if}
-	{:catch}
-		<!-- briefing is best-effort; a transient failure just hides it -->
-	{/await}
-{/if}
+			{/if}
+		</section>
 
-<!-- News magazine -->
-{#if news.length}
-	<section class="top-stories">
-		{#if hero}<NewsTile item={hero} variant="hero" />{/if}
-		{#if secondary.length}
-			<div class="secondary">
-				{#each secondary as item (item.id)}
-					<NewsTile {item} variant="wide" />
+		{#if latest.length}
+			<div class="section-head">
+				<h2>Latest News</h2>
+				<a class="link" href="/watch/feed">See all →</a>
+			</div>
+			<div class="latest-grid">
+				{#each latest as item (item.id)}
+					<NewsTile {item} variant="card" />
 				{/each}
 			</div>
 		{/if}
-	</section>
-
-	{#if latest.length}
-		<div class="section-head">
-			<h2>Latest News</h2>
-			<a class="link" href="/watch/feed">See all →</a>
-		</div>
-		<div class="latest-grid">
-			{#each latest as item (item.id)}
-				<NewsTile {item} variant="card" />
-			{/each}
+	{:else}
+		<div class="card empty">
+			<p>No news yet for your accounts.</p>
+			<p class="muted">
+				Run a refresh in <a class="link" href="/watch/admin">Admin</a> or
+				<code>npm run watch:ingest</code>.
+			</p>
 		</div>
 	{/if}
-{:else}
-	<div class="card empty">
-		<p>No news yet for your accounts.</p>
-		<p class="muted">
-			Run a refresh in <a class="link" href="/watch/admin">Admin</a> or
-			<code>npm run watch:ingest</code>.
-		</p>
-	</div>
-{/if}
 
-<footer class="statusbar">
-	<span><span class="s-dot"></span> AI Engine Active</span>
-	<span>🗂 {c.sourcesMonitored} sources monitored</span>
-	<span>◷ Last sync {c.lastSyncAt ? relativeTime(c.lastSyncAt) : '—'}</span>
-	<span class="statusbar__spacer"></span>
-	<span>🔒 Enterprise Secure</span>
-	<span>{c.totalNews.toLocaleString()} articles stored</span>
-</footer>
+	<footer class="statusbar">
+		<span><span class="s-dot"></span> AI Engine Active</span>
+		<span>🗂 {c.sourcesMonitored} sources monitored</span>
+		<span>◷ Last sync {c.lastSyncAt ? relativeTime(c.lastSyncAt) : '—'}</span>
+		<span class="statusbar__spacer"></span>
+		<span>🔒 Enterprise Secure</span>
+		<span>{c.totalNews.toLocaleString()} articles stored</span>
+	</footer>
+{/if}
 
 <style>
 	.kpis {

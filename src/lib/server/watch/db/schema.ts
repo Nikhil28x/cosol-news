@@ -243,6 +243,27 @@ export const newsSummaries = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// General industry news (AI / tech) — not tied to any account, visible to everyone.
+// ---------------------------------------------------------------------------
+export const generalNews = pgTable(
+	'general_news',
+	{
+		id: uuid('id').defaultRandom().primaryKey(),
+		title: text('title').notNull(),
+		url: text('url').notNull(),
+		urlHash: text('url_hash').notNull().unique(),
+		imageUrl: text('image_url'),
+		source: text('source'),
+		summary: text('summary'),
+		topic: text('topic'),
+		publishedAt: timestamp('published_at', { withTimezone: true }),
+		fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull().defaultNow(),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [index('general_news_published_idx').on(t.publishedAt)]
+);
+
+// ---------------------------------------------------------------------------
 // Relations (for Drizzle relational queries)
 // ---------------------------------------------------------------------------
 export const usersRelations = relations(users, ({ many }) => ({
@@ -279,3 +300,5 @@ export type NewsItem = typeof newsItems.$inferSelect;
 export type NewNewsItem = typeof newsItems.$inferInsert;
 export type IngestionRun = typeof ingestionRuns.$inferSelect;
 export type NewsSummary = typeof newsSummaries.$inferSelect;
+export type GeneralNewsItem = typeof generalNews.$inferSelect;
+export type NewGeneralNews = typeof generalNews.$inferInsert;

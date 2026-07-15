@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
 	import { segmentDef } from '$lib/watch/segments';
+	import Monogram from '$lib/watch/components/Monogram.svelte';
 	import { untrack } from 'svelte';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -109,6 +110,7 @@
 					checked={checked[a.id] ?? false}
 					onchange={(e) => (checked[a.id] = e.currentTarget.checked)}
 				/>
+				<Monogram name={a.name} segment={a.segment} slug={a.slug} size={28} />
 				<span class="arow__name">{a.name}</span>
 				<span class="arow__meta">
 					{segmentDef(a.segment).label}{#if a.pod}

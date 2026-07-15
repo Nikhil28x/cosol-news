@@ -134,7 +134,7 @@ export const BOOTSTRAP: SeedData = {
 	],
 	users: [
 		{
-			email: 'vishal@cosol.in',
+			email: 'admin@cosol.in',
 			fullName: 'Vishal',
 			role: 'admin',
 			pod: 'Leadership',

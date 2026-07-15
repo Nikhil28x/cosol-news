@@ -88,7 +88,7 @@
 		{#each data.accounts as a (a.id)}
 			<a class="acct card" href="/watch/accounts/{a.slug}">
 				<div class="acct__top">
-					<Monogram name={a.name} segment={a.segment} size={44} />
+					<Monogram name={a.name} segment={a.segment} slug={a.slug} logoUrl={a.logoUrl} size={44} />
 					<div class="acct__id">
 						<strong>{a.name}</strong>
 						<small>{segmentDef(a.segment).label}</small>

@@ -79,37 +79,45 @@ function pickImage(it: Record<string, unknown>): string | null {
 	return img ? img[1] : null;
 }
 
+/** Run a raw Google News RSS query (the query string should already carry any when: filter). */
+export async function searchGoogleNews(
+	query: string,
+	opts: { locale?: string } = {}
+): Promise<RawArticle[]> {
+	const locale = opts.locale ?? 'hl=en-IN&gl=IN&ceid=IN:en';
+	const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&${locale}`;
+
+	const { ok, status, text } = await fetchTextWithTimeout(url);
+	if (!ok) throw new Error(`Google News RSS ${status} for "${query}"`);
+	const data = parser.parse(text);
+
+	const rawItems = data?.rss?.channel?.item ?? [];
+	const items = Array.isArray(rawItems) ? rawItems : [rawItems];
+
+	const out: RawArticle[] = [];
+	for (const it of items) {
+		if (!it || !it.link || !it.title) continue;
+		const sourceName = (typeof it.source === 'object' ? it.source?.['#text'] : it.source) ?? null;
+		let title = decode(String(it.title)).trim();
+		if (sourceName && title.endsWith(` - ${sourceName}`)) {
+			title = title.slice(0, -` - ${sourceName}`.length).trim();
+		}
+		out.push({
+			title,
+			url: String(it.link),
+			source: sourceName ? String(sourceName) : null,
+			author: null,
+			publishedAt: toDate(it.pubDate),
+			summary: stripHtml(it.description),
+			imageUrl: pickImage(it)
+		});
+	}
+	return out;
+}
+
 export const googleNewsRss: Source = {
 	name: 'google-news-rss',
-	async fetch(account: Account): Promise<RawArticle[]> {
-		const q = buildQuery(account, { windowDays: 30 });
-		const url = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-IN&gl=IN&ceid=IN:en`;
-
-		const { ok, status, text } = await fetchTextWithTimeout(url);
-		if (!ok) throw new Error(`Google News RSS ${status} for "${account.name}"`);
-		const data = parser.parse(text);
-
-		const rawItems = data?.rss?.channel?.item ?? [];
-		const items = Array.isArray(rawItems) ? rawItems : [rawItems];
-
-		const out: RawArticle[] = [];
-		for (const it of items) {
-			if (!it || !it.link || !it.title) continue;
-			const sourceName = (typeof it.source === 'object' ? it.source?.['#text'] : it.source) ?? null;
-			let title = decode(String(it.title)).trim();
-			if (sourceName && title.endsWith(` - ${sourceName}`)) {
-				title = title.slice(0, -` - ${sourceName}`.length).trim();
-			}
-			out.push({
-				title,
-				url: String(it.link),
-				source: sourceName ? String(sourceName) : null,
-				author: null,
-				publishedAt: toDate(it.pubDate),
-				summary: stripHtml(it.description),
-				imageUrl: pickImage(it)
-			});
-		}
-		return out;
+	fetch(account: Account): Promise<RawArticle[]> {
+		return searchGoogleNews(buildQuery(account, { windowDays: 30 }));
 	}
 };
