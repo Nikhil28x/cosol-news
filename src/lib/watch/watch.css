@@ -1,0 +1,342 @@
+/**
+ * Customer Watch design system. Scoped under `.watch` so it never touches the
+ * marketing site. Self-contained (no Tailwind dependency); uses Inter, which
+ * app.html already loads globally.
+ */
+.watch {
+	/* Palette */
+	--bg: #f4f6f9;
+	--bg-soft: #eef1f5;
+	--surface: #ffffff;
+	--surface-2: #f8fafc;
+	--border: #e4e8ee;
+	--border-strong: #d3d9e2;
+
+	--text: #0f1b2d;
+	--text-2: #475467;
+	--text-3: #8a95a6;
+
+	--brand: #0f2947; /* navy chrome */
+	--brand-2: #16385f;
+	--accent: #0ea5b7; /* teal */
+	--accent-ink: #0b7f8d;
+
+	/* Semantic */
+	--pos: #12855a;
+	--pos-bg: #e6f6ed;
+	--neg: #d64545;
+	--neg-bg: #fdebeb;
+	--warn: #b7791f;
+	--warn-bg: #fbf1de;
+	--info: #2563c9;
+	--info-bg: #e8f0fd;
+	--neutral: #64748b;
+	--neutral-bg: #eef1f5;
+
+	/* Segment accents (referenced from segments.ts) */
+	--seg-amber: #d97706;
+	--seg-yellow: #ca8a04;
+	--seg-slate: #64748b;
+	--seg-blue: #2563eb;
+	--seg-green: #16a34a;
+	--seg-purple: #7c3aed;
+	--seg-cyan: #0891b2;
+	--seg-gray: #94a3b8;
+
+	--radius: 12px;
+	--radius-sm: 8px;
+	--radius-lg: 16px;
+	--shadow-sm: 0 1px 2px rgba(15, 27, 45, 0.06), 0 1px 3px rgba(15, 27, 45, 0.04);
+	--shadow: 0 2px 8px rgba(15, 27, 45, 0.06), 0 8px 24px rgba(15, 27, 45, 0.05);
+	--shadow-lg: 0 12px 40px rgba(15, 27, 45, 0.12);
+	--ring: 0 0 0 3px rgba(14, 165, 183, 0.25);
+
+	--sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Roboto, sans-serif;
+	--mono: 'SF Mono', 'JetBrains Mono', ui-monospace, 'Menlo', monospace;
+
+	color: var(--text);
+	background: var(--bg);
+	font-family: var(--sans);
+	font-size: 14px;
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	min-height: 100dvh;
+}
+
+/* Scoped reset (project ships no global preflight) */
+.watch *,
+.watch *::before,
+.watch *::after {
+	box-sizing: border-box;
+}
+.watch h1,
+.watch h2,
+.watch h3,
+.watch h4,
+.watch p,
+.watch figure {
+	margin: 0;
+}
+.watch button {
+	font: inherit;
+	color: inherit;
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+}
+.watch a {
+	color: inherit;
+	text-decoration: none;
+}
+.watch ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.watch input,
+.watch select,
+.watch textarea {
+	font: inherit;
+	color: inherit;
+}
+.watch ::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+.watch ::-webkit-scrollbar-thumb {
+	background: #cdd4de;
+	border-radius: 8px;
+	border: 2px solid transparent;
+	background-clip: content-box;
+}
+
+/* ---------------- Primitives ---------------- */
+.watch .card {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow-sm);
+}
+.watch .card__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 16px 18px;
+	border-bottom: 1px solid var(--border);
+}
+.watch .card__title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--text-2);
+}
+.watch .card__body {
+	padding: 8px 18px 16px;
+}
+
+.watch .muted {
+	color: var(--text-3);
+}
+.watch .link {
+	color: var(--accent-ink);
+	font-weight: 600;
+}
+.watch .link:hover {
+	text-decoration: underline;
+}
+
+/* Buttons */
+.watch .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 38px;
+	padding: 0 16px;
+	border-radius: var(--radius-sm);
+	border: 1px solid var(--border-strong);
+	background: var(--surface);
+	font-weight: 600;
+	font-size: 13px;
+	color: var(--text);
+	transition:
+		background 0.15s,
+		border-color 0.15s,
+		transform 0.05s;
+	white-space: nowrap;
+}
+.watch .btn:hover {
+	background: var(--surface-2);
+}
+.watch .btn:active {
+	transform: translateY(1px);
+}
+.watch .btn--primary {
+	background: var(--brand);
+	border-color: var(--brand);
+	color: #fff;
+}
+.watch .btn--primary:hover {
+	background: var(--brand-2);
+}
+.watch .btn--accent {
+	background: var(--accent);
+	border-color: var(--accent);
+	color: #04303a;
+}
+.watch .btn--sm {
+	height: 32px;
+	padding: 0 12px;
+	font-size: 12.5px;
+}
+.watch .btn:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+/* Fields */
+.watch .field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.watch .field > label {
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--text-2);
+}
+.watch .input {
+	height: 42px;
+	padding: 0 14px;
+	border-radius: var(--radius-sm);
+	border: 1px solid var(--border-strong);
+	background: var(--surface);
+	width: 100%;
+	transition:
+		border-color 0.15s,
+		box-shadow 0.15s;
+}
+.watch .input:focus {
+	outline: none;
+	border-color: var(--accent);
+	box-shadow: var(--ring);
+}
+
+/* Chips */
+.watch .chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 3px 9px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+	background: var(--neutral-bg);
+	color: var(--neutral);
+	white-space: nowrap;
+}
+.watch .chip--opportunity {
+	background: var(--info-bg);
+	color: var(--info);
+}
+.watch .chip--risk {
+	background: var(--neg-bg);
+	color: var(--neg);
+}
+.watch .chip--neutral {
+	background: var(--neutral-bg);
+	color: var(--neutral);
+}
+.watch .chip--pos {
+	background: var(--pos-bg);
+	color: var(--pos);
+}
+.watch .chip--warn {
+	background: var(--warn-bg);
+	color: var(--warn);
+}
+.watch .chip--signal {
+	background: var(--surface-2);
+	color: var(--text-2);
+	border: 1px solid var(--border);
+}
+
+/* Trend text */
+.watch .trend {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+.watch .trend--up {
+	color: var(--pos);
+}
+.watch .trend--down {
+	color: var(--neg);
+}
+.watch .trend--flat {
+	color: var(--text-3);
+}
+
+/* Live badge */
+.watch .live {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: rgba(14, 165, 183, 0.14);
+	color: #0b7f8d;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+}
+.watch .live__dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #10b981;
+	box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+	animation: watch-pulse 1.8s infinite;
+}
+@keyframes watch-pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+	}
+	70% {
+		box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+	}
+}
+
+/* Avatar / monogram */
+.watch .mono {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	border-radius: 10px;
+	font-weight: 700;
+	font-size: 13px;
+	color: #fff;
+	flex: none;
+	letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.watch .live__dot {
+		animation: none;
+	}
+}

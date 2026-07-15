@@ -1,0 +1,10 @@
+# Package management
+package-lock.json
+
+# Build output
+.svelte-kit/
+build/
+
+# Generated / vendored (do not reformat)
+drizzle/
+data/

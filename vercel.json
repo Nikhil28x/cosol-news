@@ -1,0 +1,8 @@
+{
+	"crons": [
+		{
+			"path": "/watch/api/cron/ingest",
+			"schedule": "30 0 * * *"
+		}
+	]
+}
