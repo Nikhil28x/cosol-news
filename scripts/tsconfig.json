@@ -1,0 +1,24 @@
+{
+	// The scripts/ folder is a set of standalone tsx utilities, outside SvelteKit's
+	// generated tsconfig (which only covers src/, test/, tests/). Without this, editors
+	// treat each script as a loose file with no Node globals — hence "Cannot find name
+	// 'process'". This gives the folder Node types and the $lib alias its imports resolve
+	// through. It does not affect `npm run check` or the production build.
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"types": ["node"],
+		"paths": {
+			"$lib": ["../src/lib"],
+			"$lib/*": ["../src/lib/*"]
+		},
+		"allowJs": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"noEmit": true
+	},
+	"include": ["**/*.ts", "../.svelte-kit/ambient.d.ts"]
+}

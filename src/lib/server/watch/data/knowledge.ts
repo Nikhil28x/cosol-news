@@ -26,6 +26,9 @@ export interface KnowledgeContext {
 	users: { name: string; pod: string | null; role: string; accountCount: number }[];
 	matchedAccounts: string[];
 	matchedSegments: string[];
+	/** How many articles the full-text search actually matched for the query (excludes
+	 *  the recency back-fill) — 0 means the portfolio doesn't cover the question. */
+	matchedNews: number;
 	totals: { accounts: number; articles: number; users: number };
 }
 
@@ -210,6 +213,7 @@ export async function retrieveContext(
 		})),
 		matchedAccounts,
 		matchedSegments: matchedSegments.map((k) => segmentDef(k).label),
+		matchedNews: ftsRows.length,
 		totals: { accounts: accountRows.length, articles: merged.length, users: userRows.length }
 	};
 }
