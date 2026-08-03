@@ -25,6 +25,7 @@
 		"watch:reenrich": "tsx scripts/reenrich.ts",
 		"watch:scheduler": "tsx scripts/scheduler.ts",
 		"watch:images": "tsx scripts/enrich-images.ts",
+		"watch:prune": "tsx scripts/prune-news.ts",
 		"watch:tech": "tsx scripts/general-news.ts"
 	},
 	"devDependencies": {

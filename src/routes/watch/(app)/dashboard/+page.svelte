@@ -3,7 +3,7 @@
 	import { SENTIMENTS, type Sentiment } from '$lib/watch/types';
 	import { relativeTime } from '$lib/watch/format';
 	import NewsTile from '$lib/watch/components/NewsTile.svelte';
-	import AiConsole from '$lib/watch/components/AiConsole.svelte';
+	import AdminHome from '$lib/watch/components/AdminHome.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -14,7 +14,13 @@
 <svelte:head><title>Dashboard · COSOL Customer Watch</title></svelte:head>
 
 {#if data.mode === 'ai'}
-	<AiConsole kb={data.kb} suggestions={data.suggestions} />
+	<AdminHome
+		firstName={data.firstName}
+		counts={data.counts}
+		recent={data.recent}
+		kb={data.kb}
+		suggestions={data.suggestions}
+	/>
 {:else}
 	{@const c = data.counts}
 	{@const news = data.news}

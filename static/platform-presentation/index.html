@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			name="description"
+			content="COSOL News — product journey, account-scoped news collection, data controls, AI intelligence and platform roadmap."
+		/>
+		<title>COSOL News · Platform Presentation</title>
+		<link rel="stylesheet" href="presentation.css" />
+	</head>
+	<body>
+		<div class="deck" id="deck">
+			<div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+			<header class="deck-header">
+				<img src="../cosol-logo.svg" alt="COSOL" />
+				<span>COSOL NEWS</span>
+			</header>
+
+			<main id="slides" aria-live="polite">
+				<section class="slide cover is-active" data-title="COSOL News" id="slide-1">
+					<div class="cover-grid"></div>
+					<div class="cover-copy">
+						<p class="eyebrow">COSOL CUSTOMER INTELLIGENCE</p>
+						<h1>COSOL News.<br />From headlines to <em>action.</em></h1>
+						<p class="lead">
+							A focused news and AI intelligence platform that helps COSOL teams understand what is
+							changing across their customer portfolio—and why it matters.
+						</p>
+						<div class="cover-meta">
+							<span>Product journey</span><i></i><span>News pipeline</span><i></i
+							><span>AI intelligence</span><i></i><span>August 2026</span>
+						</div>
+					</div>
+					<div class="signal-orbit" aria-hidden="true">
+						<div class="orbit-ring ring-a"></div>
+						<div class="orbit-ring ring-b"></div>
+						<div class="orbit-core"><span>CN</span><small>LIVE</small></div>
+						<div class="orbit-node n1">Accounts</div>
+						<div class="orbit-node n2">Sources</div>
+						<div class="orbit-node n3">Risks</div>
+						<div class="orbit-node n4">Opportunities</div>
+					</div>
+					<p class="cover-number">01</p>
+				</section>
+
+				<section class="slide" data-title="What COSOL News does" id="slide-2">
+					<div class="slide-copy narrow">
+						<p class="eyebrow">THE PURPOSE</p>
+						<h2>One dependable view of every customer signal.</h2>
+						<p class="lead muted">
+							COSOL News continuously discovers, organises and explains public news for the accounts
+							each team member is responsible for.
+						</p>
+					</div>
+					<div class="before-after">
+						<div class="state-card before">
+							<span class="state-label">THE PROBLEM TODAY</span>
+							<ul>
+								<li>News is scattered across searches and inboxes</li>
+								<li>Coverage depends on individual effort</li>
+								<li>Important developments surface too late</li>
+								<li>Evidence and interpretation are disconnected</li>
+							</ul>
+						</div>
+						<div class="transformation-arrow"><span>→</span><small>DAILY RHYTHM</small></div>
+						<div class="state-card after">
+							<span class="state-label">THE COSOL NEWS EXPERIENCE</span>
+							<ul>
+								<li>Automated monitoring across assigned accounts</li>
+								<li>AI briefings grounded in stored articles</li>
+								<li>Portfolio-wide risk and opportunity visibility</li>
+								<li>Every insight links back to its source</li>
+							</ul>
+						</div>
+					</div>
+					<div class="outcome-strip">
+						<span><b>Outcome</b></span>
+						<p>Better preparation · Earlier action · Shared customer intelligence</p>
+					</div>
+				</section>
+
+				<section class="slide" data-title="User journey" id="slide-3">
+					<div class="slide-heading split-heading">
+						<div>
+							<p class="eyebrow">THE USER JOURNEY</p>
+							<h2>A simple path from overview to evidence.</h2>
+						</div>
+						<p>The navigation mirrors how an account owner prepares for the day.</p>
+					</div>
+					<div class="journey-layout">
+						<div class="nav-rail-demo">
+							<div class="nav-brand"><b>CN</b><span>COSOL NEWS</span></div>
+							<div class="nav-item active">
+								<b>01</b><span>Dashboard</span><small>Daily briefing</small>
+							</div>
+							<div class="nav-item">
+								<b>02</b><span>News Feed</span><small>All permitted stories</small>
+							</div>
+							<div class="nav-item">
+								<b>03</b><span>Accounts</span><small>Assigned portfolio</small>
+							</div>
+							<div class="nav-item">
+								<b>04</b><span>General Tech</span><small>Shared market radar</small>
+							</div>
+						</div>
+						<div class="journey-steps">
+							<article>
+								<span>START</span><b>Scan the dashboard</b>
+								<p>See KPIs, the AI portfolio briefing and the highest-value signals.</p>
+							</article>
+							<i>→</i>
+							<article>
+								<span>FILTER</span><b>Open the news feed</b>
+								<p>Review recent stories across the user’s complete assigned portfolio.</p>
+							</article>
+							<i>→</i>
+							<article>
+								<span>FOCUS</span><b>Choose an account</b>
+								<p>Move into one customer’s history, digest and publisher evidence.</p>
+							</article>
+							<i>→</i>
+							<article>
+								<span>VERIFY</span><b>Open the source</b>
+								<p>Read the original article before deciding the next action.</p>
+							</article>
+						</div>
+					</div>
+					<div class="architecture-note">
+						<span>Overview</span><span>Signal</span><span>Account context</span><span>Source</span>
+					</div>
+				</section>
+
+				<section class="slide" data-title="A real user view" id="slide-4">
+					<div class="slide-heading">
+						<p class="eyebrow">A REAL USER ACCOUNT</p>
+						<h2>Meet Shruthi—Account Manager, POD Shruthi.</h2>
+						<p>Her session is automatically scoped to 30 assigned customer accounts.</p>
+					</div>
+					<div class="user-view-layout">
+						<article class="identity-card">
+							<div class="identity-avatar">SH</div>
+							<span>MEMBER VIEW</span>
+							<h3>Shruthi</h3>
+							<p>Account Manager · POD SHRUTHI</p>
+							<div class="identity-stat"><b>30</b><span>assigned accounts</span></div>
+						</article>
+						<div class="scope-window">
+							<div class="scope-top">
+								<span>WHAT SHRUTHI SEES</span><b>Server-side access scope</b>
+							</div>
+							<div class="scope-cards">
+								<div><b>Dashboard counts</b><span>Calculated only from her accounts</span></div>
+								<div><b>News feed</b><span>Only articles connected to her accounts</span></div>
+								<div><b>Account directory</b><span>30 permitted account profiles</span></div>
+								<div><b>AI digest</b><span>Generated only from her portfolio evidence</span></div>
+							</div>
+							<p>
+								<strong>Single rule:</strong> the user-to-account mapping governs every view and
+								query.
+							</p>
+						</div>
+					</div>
+				</section>
+
+				<section class="slide" data-title="Assigned accounts" id="slide-5">
+					<div class="slide-heading split-heading">
+						<div>
+							<p class="eyebrow">THE ACCOUNTS VIEW</p>
+							<h2>Her portfolio, organised and searchable.</h2>
+						</div>
+						<p>
+							Company logos, sectors and POD ownership make the account directory immediately
+							recognisable.
+						</p>
+					</div>
+					<div class="account-browser">
+						<div class="account-browser-head">
+							<div><b>All accounts</b><span>30 assigned</span></div>
+							<div class="search-box">⌕&nbsp;&nbsp; Search accounts…</div>
+						</div>
+						<div class="account-card-grid">
+							<article>
+								<img src="../account-logos/axis-bank-and-subsidiaries.png" alt="Axis Bank" />
+								<div><b>AXIS BANK</b><span>Financial Services</span><small>POD SHRUTHI</small></div>
+							</article>
+							<article>
+								<img src="../account-logos/capgemini.png" alt="Capgemini" />
+								<div>
+									<b>CAPGEMINI</b><span>Technology &amp; IT</span><small>POD SHRUTHI</small>
+								</div>
+							</article>
+							<article>
+								<img src="../account-logos/hdfc-bank.png" alt="HDFC Bank" />
+								<div><b>HDFC BANK</b><span>Financial Services</span><small>POD SHRUTHI</small></div>
+							</article>
+							<article>
+								<img src="../account-logos/icici-bank.png" alt="ICICI Bank" />
+								<div>
+									<b>ICICI BANK</b><span>Financial Services</span><small>POD SHRUTHI</small>
+								</div>
+							</article>
+							<article>
+								<img src="../account-logos/tata-group.png" alt="Tata Group" />
+								<div><b>TATA GROUP</b><span>Manufacturing</span><small>POD SHRUTHI</small></div>
+							</article>
+							<article>
+								<img src="../account-logos/yes-bank.png" alt="Yes Bank" />
+								<div><b>YES BANK</b><span>Financial Services</span><small>POD SHRUTHI</small></div>
+							</article>
+						</div>
+					</div>
+					<div class="account-note">
+						<b>Administrators</b> can see all 131 accounts, manage assignments and “view as” a
+						member for support.
+					</div>
+				</section>
+
+				<section class="slide" data-title="From account to source" id="slide-6">
+					<div class="slide-heading">
+						<p class="eyebrow">THE ACCOUNT EXPERIENCE</p>
+						<h2>Context first. Evidence always one click away.</h2>
+					</div>
+					<div class="account-detail-layout">
+						<div class="account-profile">
+							<div class="account-profile-head">
+								<img src="../account-logos/axis-bank-and-subsidiaries.png" alt="Axis Bank" />
+								<div>
+									<span>ACCOUNT</span>
+									<h3>Axis Bank and Subsidiaries</h3>
+									<p>Financial Services · India · POD Shruthi</p>
+								</div>
+							</div>
+							<div class="brief-card large">
+								<span>AI ACCOUNT BRIEFING</span>
+								<b
+									>Recent developments point to digital investment, growth activity and regulatory
+									watchpoints.</b
+								>
+								<p>A concise synthesis of recent stored reporting for this account.</p>
+							</div>
+						</div>
+						<div class="evidence-list">
+							<div class="evidence-head"><span>RECENT NEWS</span><b>Publisher evidence</b></div>
+							<article>
+								<span>EXPANSION</span><b>Customer investment creates a potential delivery window</b
+								><small>Publisher · Published date · Open source ↗</small>
+							</article>
+							<article>
+								<span>REGULATORY</span><b>Policy development may affect programme timing</b
+								><small>Publisher · Published date · Open source ↗</small>
+							</article>
+							<article>
+								<span>EARNINGS</span><b>Performance update supports continued investment</b
+								><small>Publisher · Published date · Open source ↗</small>
+							</article>
+						</div>
+					</div>
+					<div class="guardrail-row">
+						<span>Account history</span><span>AI digest</span><span>Recent stories</span
+						><span>Original publisher links</span>
+					</div>
+				</section>
+
+				<section class="slide" data-title="End-to-end flow" id="slide-7">
+					<div class="slide-heading">
+						<p class="eyebrow">HOW COSOL NEWS WORKS</p>
+						<h2>From account configuration to decision-ready intelligence.</h2>
+					</div>
+					<div class="pipeline">
+						<div class="pipe-step">
+							<span class="step-no">01</span>
+							<div class="step-icon search-icon"></div>
+							<h3>Build query</h3>
+							<p>Name, aliases, context, exclusions and time window.</p>
+						</div>
+						<div class="pipe-arrow">→</div>
+						<div class="pipe-step">
+							<span class="step-no">02</span>
+							<div class="step-icon rss-icon">RSS</div>
+							<h3>Fetch sources</h3>
+							<p>Recent publisher coverage is discovered through Google News.</p>
+						</div>
+						<div class="pipe-arrow">→</div>
+						<div class="pipe-step">
+							<span class="step-no">03</span>
+							<div class="step-icon hash-icon">#</div>
+							<h3>Quality gates</h3>
+							<p>Irrelevant and duplicate stories are discarded.</p>
+						</div>
+						<div class="pipe-arrow">→</div>
+						<div class="pipe-step">
+							<span class="step-no">04</span>
+							<div class="step-icon db-icon"></div>
+							<h3>Store news</h3>
+							<p>New evidence becomes part of the account knowledge base.</p>
+						</div>
+						<div class="pipe-arrow">→</div>
+						<div class="pipe-step highlight">
+							<span class="step-no">05</span>
+							<div class="step-icon ai-icon">AI</div>
+							<h3>Synthesise</h3>
+							<p>Gemini turns recent stored news into scoped intelligence.</p>
+						</div>
+						<div class="pipe-arrow">→</div>
+						<div class="pipe-step final">
+							<span class="step-no">06</span>
+							<div class="step-icon signal-icon">!</div>
+							<h3>Support action</h3>
+							<p>Users see briefings, risks, opportunities and source links.</p>
+						</div>
+					</div>
+					<div class="architecture-note">
+						<span>Discover</span><span>Validate</span><span>Store</span><span>Explain</span
+						><span>Act</span>
+					</div>
+				</section>
+
+				<section class="slide" data-title="Aliases and search context" id="slide-8">
+					<div class="slide-heading split-heading">
+						<div>
+							<p class="eyebrow">QUERY CONSTRUCTION</p>
+							<h2>Aliases widen coverage. Context keeps it relevant.</h2>
+						</div>
+						<p>Every active account receives a curated search—not just a company-name lookup.</p>
+					</div>
+					<div class="query-layout">
+						<div class="query-console">
+							<div class="console-head"><span>EXAMPLE ACCOUNT QUERY</span><i>30-day window</i></div>
+							<code
+								><span>(</span>“Fortescue” <b>OR</b> “Fortescue Metals” <b>OR</b> “FMG”<span>)</span
+								><br /><span>(</span>“mining” <b>OR</b> “iron ore”<span>)</span><br /><strong
+									>-“football”</strong
+								>
+								<em>when:30d</em></code
+							>
+							<div class="query-parts">
+								<div><b>Primary name</b><span>Exact customer identity</span></div>
+								<div><b>Aliases</b><span>Acronyms, brands and variants</span></div>
+								<div><b>Search context</b><span>Industry, location or disambiguation</span></div>
+								<div><b>Exclusions</b><span>Known false-positive topics</span></div>
+							</div>
+						</div>
+						<div class="fetch-facts">
+							<div class="fact">
+								<span>01</span>
+								<p><b>Quoted names</b> reduce loose, partial matches.</p>
+							</div>
+							<div class="fact">
+								<span>02</span>
+								<p><b>OR aliases</b> catch alternate company references.</p>
+							</div>
+							<div class="fact">
+								<span>03</span>
+								<p><b>Context terms</b> separate companies with common names.</p>
+							</div>
+							<div class="fact">
+								<span>04</span>
+								<p><b>Negative terms</b> suppress recurring irrelevant results.</p>
+							</div>
+							<div class="fact">
+								<span>05</span>
+								<p><b>Recent window</b> keeps daily monitoring current.</p>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="slide" data-title="News sources" id="slide-9">
+					<div class="slide-heading">
+						<p class="eyebrow">SOURCE STRATEGY</p>
+						<h2>Open discovery today. Premium coverage tomorrow.</h2>
+						<p>
+							The source layer is designed so additional providers can be composed without
+							rebuilding the platform.
+						</p>
+					</div>
+					<div class="source-strategy">
+						<article class="source-now">
+							<span class="source-status">CURRENT</span>
+							<div class="source-mark">G</div>
+							<h3>Google News RSS</h3>
+							<p>Free account-level discovery using the India English locale.</p>
+							<ul>
+								<li>No news API key required</li>
+								<li>Publisher, date, snippet and article link retained</li>
+								<li>15-second request budget</li>
+							</ul>
+						</article>
+						<div class="source-bridge">
+							<span>PLUGGABLE<br />SOURCE LAYER</span><b>→</b>
+						</div>
+						<article class="source-future">
+							<span class="source-status">FUTURE SCOPE</span>
+							<h3>Paid news APIs &amp; licensed feeds</h3>
+							<div class="future-source-grid">
+								<div><b>Broader coverage</b><span>More publishers and regions</span></div>
+								<div>
+									<b>Richer metadata</b><span>Topics, entities and full text where licensed</span>
+								</div>
+								<div>
+									<b>Higher reliability</b><span>Commercial limits and service commitments</span>
+								</div>
+								<div><b>Source diversity</b><span>Cross-provider corroboration</span></div>
+							</div>
+							<p class="source-note">
+								Potential categories: enterprise news APIs, market-data news feeds and specialist
+								industry sources.
+							</p>
+						</article>
+					</div>
+				</section>
+
+				<section class="slide" data-title="Relevance and duplicates" id="slide-10">
+					<div class="slide-heading">
+						<p class="eyebrow">QUALITY &amp; TRUST</p>
+						<h2>Only relevant, new evidence moves forward.</h2>
+						<p>
+							False matches and repeat stories are removed before they reach the user or the AI
+							layer.
+						</p>
+					</div>
+					<div class="gate-grid">
+						<article class="gate">
+							<div class="gate-top"><span>GATE 01</span><i>✓</i></div>
+							<h3>Relevance guard</h3>
+							<p>
+								Account-specific rules reject sport, showbiz, obituaries and known name collisions.
+							</p>
+							<code>fetched → relevant / rejected</code>
+						</article>
+						<article class="gate">
+							<div class="gate-top"><span>GATE 02</span><i>#</i></div>
+							<h3>Batch deduplication</h3>
+							<p>
+								Each article URL receives a stable SHA-256 hash; repeats inside the current fetch
+								are dropped.
+							</p>
+							<code>same hash in batch → discard</code>
+						</article>
+						<article class="gate">
+							<div class="gate-top"><span>GATE 03</span><i>DB</i></div>
+							<h3>Historical deduplication</h3>
+							<p>
+								Stored hashes are checked before insertion, with a unique database constraint
+								guarding races.
+							</p>
+							<code>account_id + url_hash = unique</code>
+						</article>
+					</div>
+					<div class="dedupe-example">
+						<div><span>DISCOVERED</span><b>Publisher article URL</b></div>
+						<i>→</i>
+						<div><span>FINGERPRINT</span><b>SHA-256 URL hash</b></div>
+						<i>→</i>
+						<div class="decision"><span>DECISION</span><b>Already stored? Discard : Add</b></div>
+					</div>
+				</section>
+
+				<section class="slide" data-title="How news is stored" id="slide-11">
+					<div class="slide-heading split-heading">
+						<div>
+							<p class="eyebrow">THE KNOWLEDGE BASE</p>
+							<h2>Each article becomes durable account evidence.</h2>
+						</div>
+						<p>PostgreSQL stores the source record and its relationship to the customer account.</p>
+					</div>
+					<div class="storage-layout">
+						<div class="record-card">
+							<div class="record-head"><span>NEWS ITEM</span><b>PostgreSQL record</b></div>
+							<div class="record-fields">
+								<div><span>ACCOUNT</span><b>Axis Bank</b></div>
+								<div><span>TITLE</span><b>Publisher headline</b></div>
+								<div><span>SOURCE</span><b>Publisher name</b></div>
+								<div><span>PUBLISHED</span><b>Date and time</b></div>
+								<div><span>SUMMARY</span><b>RSS description</b></div>
+								<div><span>URL HASH</span><b>Duplicate fingerprint</b></div>
+								<div><span>IMAGE</span><b>Resolved publisher image</b></div>
+								<div><span>RAW</span><b>Original source payload</b></div>
+							</div>
+						</div>
+						<div class="storage-consumers">
+							<div class="db-core">DB<span>ACCOUNT KNOWLEDGE</span></div>
+							<div class="consumer-list">
+								<article><b>Dashboard</b><span>Counts and latest signals</span></article>
+								<article><b>Account pages</b><span>History and source evidence</span></article>
+								<article><b>AI digests</b><span>Recent grounded context</span></article>
+								<article><b>AI assistant</b><span>Full-text retrieval</span></article>
+							</div>
+						</div>
+					</div>
+					<div class="image-enrichment">
+						<div class="image-card"><span></span><span></span><span></span></div>
+						<div>
+							<b>Images are enriched separately.</b>
+							<p>
+								When RSS has no image, the platform best-effort resolves the publisher page and
+								stores its article image.
+							</p>
+						</div>
+					</div>
+				</section>
+
+				<section class="slide" data-title="Run monitoring" id="slide-12">
+					<div class="slide-heading split-heading">
+						<div>
+							<p class="eyebrow">OPERATIONAL VISIBILITY</p>
+							<h2>Every account fetch leaves an audit trail.</h2>
+						</div>
+						<p>The admin view makes collection health visible and recoverable.</p>
+					</div>
+					<div class="run-layout">
+						<div class="run-table">
+							<div class="run-row run-head">
+								<span>ACCOUNT</span><span>FOUND</span><span>REJECTED</span><span>ADDED</span
+								><span>STATUS</span><span>ERROR</span>
+							</div>
+							<div class="run-row">
+								<b>Axis Bank</b><span>26</span><span>3</span><span>5</span
+								><i class="status-ok">SUCCESS</i><small>—</small>
+							</div>
+							<div class="run-row">
+								<b>Capgemini</b><span>41</span><span>7</span><span>9</span
+								><i class="status-ok">SUCCESS</i><small>—</small>
+							</div>
+							<div class="run-row">
+								<b>Tata Group</b><span>35</span><span>5</span><span>4</span
+								><i class="status-ok">SUCCESS</i><small>—</small>
+							</div>
+							<div class="run-row">
+								<b>Example account</b><span>0</span><span>0</span><span>0</span
+								><i class="status-error">ERROR</i><small>Source timeout</small>
+							</div>
+						</div>
+						<div class="run-notes">
+							<div>
+								<span>FOUND</span>
+								<p>Relevant articles returned after filtering.</p>
+							</div>
+							<div>
+								<span>REJECTED</span>
+								<p>Off-topic items removed by relevance rules.</p>
+							</div>
+							<div>
+								<span>ADDED</span>
+								<p>New, non-duplicate records persisted.</p>
+							</div>
+							<div>
+								<span>ERROR</span>
+								<p>Failure detail retained for investigation.</p>
+							</div>
+						</div>
+					</div>
+					<p class="run-footnote">
+						<b>* Current behavior:</b> rejected items are calculated during ingestion; persistent
+						run history stores found, added, enriched, status and error. Persisting the rejected
+						count is a defined monitoring enhancement.
+					</p>
+					<div class="operation-strip">
+						<span><b>AUTOMATIC</b> 06:00 IST via protected Vercel Cron</span
+						><span><b>MANUAL</b> Admin refresh for all accounts</span
+						><span><b>TARGETED</b> Single-account refresh</span>
+					</div>
+				</section>
+
+				<section class="slide" data-title="AI integration" id="slide-13">
+					<div class="slide-heading split-heading">
+						<div>
+							<p class="eyebrow">THE AI INTEGRATION</p>
+							<h2>Gemini explains the evidence already collected.</h2>
+						</div>
+						<p>
+							AI runs after ingestion, keeping source collection fast, controlled and
+							cost-efficient.
+						</p>
+					</div>
+					<div class="ai-layout">
+						<div class="knowledge-stack">
+							<div class="stack-row">
+								<span>STEP 1</span><b>Load permitted news</b><small>User or account scope</small>
+							</div>
+							<div class="stack-row">
+								<span>STEP 2</span><b>Select recent evidence</b
+								><small>Bounded context window</small>
+							</div>
+							<div class="stack-row accent">
+								<span>STEP 3</span><b>Gemini 2.5 Flash</b><small>Via OpenRouter</small>
+							</div>
+							<div class="stack-row">
+								<span>STEP 4</span><b>Validate and cache</b><small>Once per scope/day</small>
+							</div>
+						</div>
+						<div class="digest-card">
+							<div class="digest-head"><span>PORTFOLIO BRIEFING</span><b>GROUNDED</b></div>
+							<h3>
+								Recent reporting indicates investment momentum with two regulatory watchpoints.
+							</h3>
+							<div class="signal-line">
+								<i class="opp"></i
+								><span><b>Opportunity</b> — expansion and capital investment</span>
+							</div>
+							<div class="signal-line">
+								<i class="risk"></i><span><b>Risk</b> — regulatory and delivery timing</span>
+							</div>
+							<div class="signal-line">
+								<i class="neutral"></i><span><b>Watch</b> — leadership and strategic change</span>
+							</div>
+							<footer>Stored headlines remain available beneath the synthesis</footer>
+						</div>
+					</div>
+					<div class="guardrail-row">
+						<span>No AI required per RSS item</span><span>Evidence remains visible</span
+						><span>Scoped per user</span><span>Raw news survives an AI failure</span>
+					</div>
+				</section>
+
+				<section class="slide" data-title="AI assistant" id="slide-14">
+					<div class="slide-heading">
+						<p class="eyebrow">THE ADMIN AI ASSISTANT</p>
+						<h2>Ask questions across the customer knowledge base.</h2>
+					</div>
+					<div class="assistant-layout">
+						<div class="chat-window">
+							<div class="chat-top">
+								<span class="ai-dot"></span><b>COSOL Intelligence Assistant</b
+								><small>Streaming</small>
+							</div>
+							<div class="bubble user-bubble">
+								What are the biggest risks across our banking accounts?
+							</div>
+							<div class="bubble ai-bubble">
+								<strong>PORTFOLIO ANSWER</strong>
+								<p>
+									Recent reporting clusters around regulatory change, digital-programme delivery and
+									margin pressure.
+								</p>
+								<b>1 · Regulatory exposure</b
+								><span>Evidence retrieved across the relevant banking accounts…</span
+								><b>2 · Cross-account pattern</b
+								><span>Multiple customers show related implementation risk…</span><b>Sources</b
+								><span>Publisher-linked articles used for this response.</span>
+							</div>
+						</div>
+						<div class="assistant-flow">
+							<div>
+								<span>1</span>
+								<p><b>Interpret the question</b><br />Identify companies, topics and intent.</p>
+							</div>
+							<div>
+								<span>2</span>
+								<p><b>Search PostgreSQL</b><br />Retrieve relevant account news and metadata.</p>
+							</div>
+							<div>
+								<span>3</span>
+								<p>
+									<b>Build grounded context</b><br />Include only useful evidence and source links.
+								</p>
+							</div>
+							<div>
+								<span>4</span>
+								<p><b>Ask Gemini</b><br />Stream a concise, evidence-based answer.</p>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="slide" data-title="Off-portfolio research" id="slide-15">
+					<div class="slide-heading split-heading">
+						<div>
+							<p class="eyebrow">FRESH EXTERNAL RESEARCH</p>
+							<h2>What if the company is not in the portfolio?</h2>
+						</div>
+						<p>
+							The assistant can temporarily extend beyond stored account news without adding the
+							company to the portfolio.
+						</p>
+					</div>
+					<div class="external-search-flow">
+						<article class="external-question">
+							<span>ADMIN ASKS</span><b>“What is the latest news on Vodafone?”</b>
+							<p>Vodafone is not one of the tracked customer accounts.</p>
+						</article>
+						<div class="external-arrow">→</div>
+						<article>
+							<span>1 · DETECT</span><b>Check portfolio entities</b>
+							<p>No matching tracked account is found.</p>
+						</article>
+						<div class="external-arrow">→</div>
+						<article>
+							<span>2 · SEARCH</span><b>Run fresh Google News</b>
+							<p>A lean query retrieves current public reporting.</p>
+						</article>
+						<div class="external-arrow">→</div>
+						<article class="external-ai">
+							<span>3 · SYNTHESISE</span><b>Give results to Gemini</b>
+							<p>Gemini answers from the fresh articles with source links.</p>
+						</article>
+					</div>
+					<div class="external-boundary">
+						<b>Important boundary</b
+						><span
+							>This is live question context—not a permanent portfolio record unless the account is
+							formally added and ingested.</span
+						>
+					</div>
+				</section>
+
+				<section class="slide" data-title="Questions the platform answers" id="slide-16">
+					<div class="slide-heading">
+						<p class="eyebrow">INTELLIGENCE COVERAGE</p>
+						<h2>From one account update to a portfolio-wide pattern.</h2>
+					</div>
+					<div class="question-grid">
+						<article>
+							<span>01</span>
+							<div>
+								<h3>Recent account developments</h3>
+								<p>“What has changed at Axis Bank in the last few weeks?”</p>
+								<small>Account news + dated publisher evidence</small>
+							</div>
+						</article>
+						<article>
+							<span>02</span>
+							<div>
+								<h3>Cross-account risk</h3>
+								<p>“Which customer accounts share the same delivery risk?”</p>
+								<small>Full-text retrieval across multiple accounts</small>
+							</div>
+						</article>
+						<article>
+							<span>03</span>
+							<div>
+								<h3>Industry and sector risk</h3>
+								<p>“What regulatory themes are emerging in banking?”</p>
+								<small>Sector-scoped evidence and synthesis</small>
+							</div>
+						</article>
+						<article>
+							<span>04</span>
+							<div>
+								<h3>Opportunities and investment</h3>
+								<p>“Where is expansion activity creating a COSOL opening?”</p>
+								<small>Capex, transformation and growth signals</small>
+							</div>
+						</article>
+						<article>
+							<span>05</span>
+							<div>
+								<h3>Source articles</h3>
+								<p>“Show the reporting behind that conclusion.”</p>
+								<small>Publisher, date, headline and direct link</small>
+							</div>
+						</article>
+						<article>
+							<span>06</span>
+							<div>
+								<h3>External companies</h3>
+								<p>“What is happening at a prospect not yet tracked?”</p>
+								<small>Fresh Google News context supplied to Gemini</small>
+							</div>
+						</article>
+					</div>
+				</section>
+
+				<section class="slide" data-title="How the stack works together" id="slide-17">
+					<div class="slide-heading">
+						<p class="eyebrow">TECHNICAL ARCHITECTURE</p>
+						<h2>Clear responsibilities across one connected stack.</h2>
+					</div>
+					<div class="architecture-map">
+						<div class="arch-column">
+							<span class="arch-label">EXPERIENCE</span>
+							<div class="arch-box primary">
+								<b>SvelteKit 2 + Svelte 5</b
+								><small>Dashboard · Feed · Accounts · Admin · AI console</small>
+							</div>
+						</div>
+						<div class="arch-connector">↕</div>
+						<div class="arch-column two">
+							<span class="arch-label">SERVER SERVICES</span>
+							<div class="arch-box">
+								<b>Scoped data layer</b><small>Access, counts, feeds and digests</small>
+							</div>
+							<div class="arch-box">
+								<b>Ingestion agents</b><small>Query, fetch, filter, dedupe and images</small>
+							</div>
+							<div class="arch-box">
+								<b>Authentication</b><small>Sessions, roles and view-as</small>
+							</div>
+						</div>
+						<div class="arch-connector">↕</div>
+						<div class="arch-column two">
+							<span class="arch-label">PLATFORM &amp; DATA</span>
+							<div class="arch-box database">
+								<b>Supabase PostgreSQL</b><small>Drizzle ORM · durable knowledge base</small>
+							</div>
+							<div class="arch-box">
+								<b>Vercel</b><small>Node runtime · protected daily cron</small>
+							</div>
+						</div>
+						<div class="arch-connector">↔</div>
+						<div class="arch-column two externals">
+							<span class="arch-label">EXTERNAL SERVICES</span>
+							<div class="arch-box"><b>Google News RSS</b><small>Public news discovery</small></div>
+							<div class="arch-box ai-arch">
+								<b>OpenRouter / Gemini</b><small>Digests and streamed answers</small>
+							</div>
+						</div>
+					</div>
+					<div class="security-pill-row">
+						<span>Secure cookie sessions</span><span>bcrypt passwords</span
+						><span>Server-side account scope</span><span>Protected cron secret</span
+						><span>No browser-side database access</span>
+					</div>
+				</section>
+
+				<section class="slide" data-title="Value and roadmap" id="slide-18">
+					<div class="slide-heading split-heading">
+						<div>
+							<p class="eyebrow">VALUE &amp; FUTURE SCOPE</p>
+							<h2>A strong foundation designed to expand.</h2>
+						</div>
+						<p>
+							The immediate value is better preparation; the longer-term opportunity is a richer
+							customer-intelligence system.
+						</p>
+					</div>
+					<div class="roadmap-layout">
+						<div class="value-mini-grid">
+							<article>
+								<span>↗</span><b>Earlier opportunities</b>
+								<p>Expansion and investment become reasons to engage.</p>
+							</article>
+							<article>
+								<span>△</span><b>Consistent risk awareness</b>
+								<p>Common risks become visible across accounts and sectors.</p>
+							</article>
+							<article>
+								<span>◎</span><b>Better preparation</b>
+								<p>Context, interpretation and evidence stay together.</p>
+							</article>
+							<article>
+								<span>⌁</span><b>Less manual searching</b>
+								<p>Repeatable automation replaces fragmented monitoring.</p>
+							</article>
+						</div>
+						<div class="roadmap">
+							<div class="roadmap-step now">
+								<span>NOW</span><b>Reliable daily intelligence</b>
+								<p>RSS discovery, account scoping, AI digests and source evidence.</p>
+							</div>
+							<div class="roadmap-line"></div>
+							<div class="roadmap-step">
+								<span>NEXT</span><b>Premium news providers</b>
+								<p>Paid APIs and specialist industry sources.</p>
+							</div>
+							<div class="roadmap-line"></div>
+							<div class="roadmap-step">
+								<span>LATER</span><b>Richer workflows</b>
+								<p>Alerts, CRM connections, collaboration and trend analytics.</p>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="slide close" data-title="Closing" id="slide-19">
+					<div class="close-copy">
+						<p class="eyebrow">COSOL NEWS</p>
+						<h2>Monitor the market.<br />Understand the signal.<br />Act with confidence.</h2>
+						<div class="close-flow">
+							<span>DISCOVER</span><i>→</i><span>VALIDATE</span><i>→</i><span>UNDERSTAND</span
+							><i>→</i><span>ACT</span>
+						</div>
+						<p>Daily evidence. Scoped intelligence. Better customer conversations.</p>
+						<div class="demo-prompt">Next: live platform demonstration</div>
+					</div>
+					<div class="close-mark">CN</div>
+					<p class="cover-number">19</p>
+				</section>
+			</main>
+
+			<nav class="controls" aria-label="Presentation controls">
+				<button id="prev" type="button" aria-label="Previous slide">←</button>
+				<div class="counter">
+					<b id="currentSlide">01</b><span>/</span><span id="totalSlides">19</span>
+				</div>
+				<button id="next" type="button" aria-label="Next slide">→</button>
+				<button id="overview" class="utility" type="button" aria-label="Open slide overview">
+					▦
+				</button>
+				<button id="print" class="utility" type="button" aria-label="Print presentation">
+					PDF
+				</button>
+				<button id="fullscreen" class="utility" type="button" aria-label="Enter full screen">
+					⛶
+				</button>
+			</nav>
+
+			<div class="hint">
+				← → navigate&nbsp;&nbsp;·&nbsp;&nbsp;F full screen&nbsp;&nbsp;·&nbsp;&nbsp;O overview
+			</div>
+
+			<div class="overview-panel" id="overviewPanel" aria-hidden="true">
+				<div class="overview-head">
+					<div><span>SLIDE OVERVIEW</span><b>COSOL News</b></div>
+					<button id="closeOverview" type="button">Close ×</button>
+				</div>
+				<div class="overview-grid" id="overviewGrid"></div>
+			</div>
+		</div>
+
+		<script src="presentation.js"></script>
+	</body>
+</html>

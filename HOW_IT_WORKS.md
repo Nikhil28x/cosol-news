@@ -32,13 +32,33 @@ For **every active account**, `agents/orchestrator.ts → ingestAccount(account,
 
 1. **Query** (`agents/query.ts`): `("Fortescue" OR "Fortescue Metals" OR "FMG") when:30d`
    — the account name + aliases, OR'd and quoted, plus optional `searchTerms`, last 30 days.
+   Names that collide with something more newsworthy get a curated entry in
+   `agents/disambiguation.ts` — extra aliases, an AND'd context group and `-term`
+   exclusions — so "Bayer" returns Roundup litigation, not Bundesliga transfers, and
+   "Varian" returns radiotherapy, not the racehorse trainer.
 2. **Fetch** (`agents/sources/google-news-rss.ts`): Google News RSS (free, no key, India/AU
    locale) → parsed into `{title, url, publisher, publishedAt, snippet}` (title cleaned, HTML
    stripped, 15s timeout). This is the pluggable "source" — Tavily/NewsAPI can be added here.
-3. **Dedupe**: canonical URL hash (`auth/crypto.ts` — strips `utm_*`/`gclid`, SHA-256).
+3. **Guardrails** (`agents/relevance.ts`) — two gates, both must pass:
+   - **Mention gate:** the article must actually name the customer. Google News answers a
+     query with whatever it deems related, so without this an account collects sector
+     chatter that never names it ("AIIMS seat allocation" under NIMHANS). Matching covers
+     the account name, aliases, curated variants, parenthetical abbreviations
+     ("… (NPCIL)"), split names ("TATA ELECTRONICS//PEGATRON"), squashed forms
+     (`SUNPHARMA` = "Sun Pharma"), diacritics ("Mondelēz") and the ticker in upper case.
+   - **Off-topic gate:** the article must read as business news. Decisive markers
+     (Leverkusen, jockey, midfielder) reject outright; softer ones (cricket, box office,
+     "arrested") reject only when the text carries no business marker, so a bank's IPL
+     sponsorship or a media house's box-office story stays.
+
+   When the press calls an account something else — TKM is "Toyota Kirloskar Motor",
+   Vantiv is "Worldpay" — add the alias in `agents/disambiguation.ts`; it feeds both the
+   query and the mention gate.
+
+4. **Dedupe**: canonical URL hash (`auth/crypto.ts` — strips `utm_*`/`gclid`, SHA-256).
    Skips anything already stored for that account; a unique `(account_id, url_hash)` index is
    the final guard.
-4. **Persist**: new rows inserted into `news_items`. **No LLM is called here.** An
+5. **Persist**: new rows inserted into `news_items`. **No LLM is called here.** An
    `ingestion_runs` row logs found/new counts.
 
 Then `refreshAll()` **drops today's cached digests** (`invalidateTodaySummaries()`) so they
@@ -98,6 +118,9 @@ Three ways to run the daily `refreshAll`, pick per environment:
   Keep it alive under pm2 / launchd / a container. Add `--now` to also run immediately.
 - **OS cron alternative:** a crontab line — `0 6 * * * cd /path/to/cosol-news && npm run watch:ingest`.
 - **Manual:** `npm run watch:ingest`, or the Admin "Run ingestion" button.
+- **Housekeeping:** `npm run watch:prune` reports off-topic articles already stored (rows
+  ingested before the relevance guard existed); `npm run watch:prune -- --apply` deletes
+  them and drops today's digests so they rebuild. `--segment pharma_healthcare` scopes it.
 
 **Freshness:** `refreshAll` deletes today's digests after fetching, so the next view
 regenerates them from the new news. New day → new fetch → new digest.
@@ -128,8 +151,10 @@ subsequent views are instant from cache.
 
 ```
 agents/query.ts                     per-account Google News query
+agents/disambiguation.ts            curated aliases/context/exclusions for ambiguous names
+agents/relevance.ts                 post-fetch off-topic guard (sport/showbiz/obituaries)
 agents/sources/google-news-rss.ts   fetch + parse RSS (the search agent)
-agents/orchestrator.ts              fetch → dedupe → persist (enrich:false)
+agents/orchestrator.ts              fetch → filter → dedupe → persist (enrich:false)
 agents/refresh.ts                   refreshAll: daily RSS + rebuild digests
 agents/summarise.ts                 Gemini calls → dashboard & account digests
 data/digest.ts                      get-or-generate + daily cache + counts + isolation

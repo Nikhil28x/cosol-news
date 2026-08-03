@@ -13,8 +13,9 @@ const STATIC_SUGGESTIONS = [
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = effectiveUser(locals);
 
-	// Admin dashboard = AI assistant. (When an admin is "viewing as" a member,
-	// effectiveUser is that member → they see the member magazine, as intended.)
+	// Admin dashboard = the AI workspace: greeting + ask console over KPIs and recent
+	// activity. (When an admin is "viewing as" a member, effectiveUser is that member →
+	// they see the member magazine, as intended.)
 	if (user.role === 'admin') {
 		const [counts, recent] = await Promise.all([
 			getDashboardCounts(user),
@@ -31,6 +32,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 		return {
 			mode: 'ai' as const,
+			firstName: user.fullName.trim().split(/\s+/)[0],
+			counts,
+			recent: recent.slice(0, 6),
 			kb: {
 				accounts: counts.totalCustomers,
 				articles: counts.totalNews,

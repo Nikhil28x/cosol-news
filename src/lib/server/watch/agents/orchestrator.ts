@@ -4,12 +4,15 @@ import { accounts, ingestionRuns, newsItems } from '../db/schema';
 import type { Account, NewNewsItem } from '../db/schema';
 import { urlHash } from '../auth/crypto';
 import { getEnricher } from './enrich';
+import { filterRelevant } from './relevance';
 import { googleNewsRss } from './sources/google-news-rss';
 
 export interface IngestResult {
 	accountId: string;
 	accountName: string;
 	found: number;
+	/** Articles the relevance guard rejected as off-topic (sport/showbiz/obituaries). */
+	dropped: number;
 	fresh: number;
 	enriched: number;
 	status: 'success' | 'error';
@@ -30,8 +33,11 @@ export async function ingestAccount(
 		.returning({ id: ingestionRuns.id });
 
 	try {
-		// 1. fetch
-		const articles = await source.fetch(account);
+		// 1. fetch, then drop off-topic hits (name collisions: "Bayer" the football club,
+		//    "Varian" the racehorse trainer, "Blum" the obituary listings)
+		const fetched = await source.fetch(account);
+		const articles = filterRelevant(account, fetched);
+		const dropped = fetched.length - articles.length;
 
 		// 2. dedupe within the batch by canonical url hash
 		const seen = new Set<string>();
@@ -121,6 +127,7 @@ export async function ingestAccount(
 			accountId: account.id,
 			accountName: account.name,
 			found: articles.length,
+			dropped,
 			fresh: fresh.length,
 			enriched,
 			status: 'success'
@@ -135,6 +142,7 @@ export async function ingestAccount(
 			accountId: account.id,
 			accountName: account.name,
 			found: 0,
+			dropped: 0,
 			fresh: 0,
 			enriched: 0,
 			status: 'error',
