@@ -1,14 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { SENTIMENTS, type Sentiment } from '$lib/watch/types';
 	import { relativeTime } from '$lib/watch/format';
 	import NewsTile from '$lib/watch/components/NewsTile.svelte';
+	import Briefing from '$lib/watch/components/Briefing.svelte';
 	import AdminHome from '$lib/watch/components/AdminHome.svelte';
 
 	let { data }: { data: PageData } = $props();
-
-	const sentimentClass = (s: Sentiment) =>
-		s === 'bullish' ? 'chip--pos' : s === 'bearish' ? 'chip--risk' : 'chip--neutral';
 </script>
 
 <svelte:head><title>Dashboard · COSOL Customer Watch</title></svelte:head>
@@ -54,19 +51,17 @@
 	{#if c.totalCustomers > 0}
 		{#await data.digest then digest}
 			{#if digest}
-				<section class="card briefing">
-					<div class="briefing__head">
-						<span class="card__title">🧠 Portfolio Briefing</span>
-						<span class="chip {sentimentClass(digest.portfolioSentiment)}">
-							{SENTIMENTS[digest.portfolioSentiment].arrow}
-							{SENTIMENTS[digest.portfolioSentiment].label}
-						</span>
-						<span class="gen"
-							>Gemini · {digest.itemCount} articles · {relativeTime(digest.generatedAt)}</span
-						>
-					</div>
-					<p class="briefing__text">{digest.portfolioSummary}</p>
-				</section>
+				<Briefing
+					label="Portfolio Briefing"
+					summary={digest.portfolioSummary}
+					sentiment={digest.portfolioSentiment}
+					signals={digest.sectors.flatMap((s) => s.signals).slice(0, 6)}
+					signalsLabel="Signals across your sectors"
+					showAccount
+					itemCount={digest.itemCount}
+					generatedAt={digest.generatedAt}
+					model={digest.model?.includes('gemini') ? 'Gemini' : digest.model}
+				/>
 			{/if}
 		{:catch}
 			<!-- briefing is best-effort; a transient failure just hides it -->
@@ -152,28 +147,6 @@
 	}
 	.kpi__foot.pos {
 		color: var(--pos);
-	}
-
-	.briefing {
-		padding: 16px 18px;
-		margin-bottom: 18px;
-	}
-	.briefing__head {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		margin-bottom: 8px;
-		flex-wrap: wrap;
-	}
-	.gen {
-		font-size: 12px;
-		color: var(--text-3);
-		margin-left: auto;
-	}
-	.briefing__text {
-		font-size: 14px;
-		line-height: 1.6;
-		color: var(--text);
 	}
 
 	.top-stories {

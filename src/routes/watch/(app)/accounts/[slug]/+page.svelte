@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { SENTIMENTS, type ImpactKind, type Sentiment } from '$lib/watch/types';
 	import { segmentDef } from '$lib/watch/segments';
 	import { relativeTime } from '$lib/watch/format';
 	import Monogram from '$lib/watch/components/Monogram.svelte';
+	import Briefing from '$lib/watch/components/Briefing.svelte';
 	import FeedCard from '$lib/watch/components/FeedCard.svelte';
 	import EmptyState from '$lib/watch/components/EmptyState.svelte';
 
@@ -11,11 +11,6 @@
 	const a = $derived(data.account);
 	const articleCount = $derived(data.items.length);
 	const last = $derived(data.items[0]?.publishedAt ?? data.items[0]?.fetchedAt ?? null);
-
-	const sentimentClass = (s: Sentiment) =>
-		s === 'bullish' ? 'chip--pos' : s === 'bearish' ? 'chip--risk' : 'chip--neutral';
-	const kindClass = (k: ImpactKind) =>
-		k === 'opportunity' ? 'is-opp' : k === 'risk' ? 'is-risk' : 'is-neu';
 </script>
 
 <svelte:head><title>{a.name} · COSOL Customer Watch</title></svelte:head>
@@ -49,36 +44,32 @@
 
 <!-- AI briefing (streams in) -->
 {#await data.digest}
-	<section class="card digest loading">
-		<span class="spin"></span> Generating AI briefing for {a.name}…
+	<section class="card brief-skeleton" aria-busy="true">
+		<div class="brief-skeleton__head">
+			<span class="spin"></span>
+			<span class="brief-skeleton__label">Generating AI briefing for {a.name}…</span>
+		</div>
+		<div class="brief-skeleton__body">
+			<span class="bar" style="width:96%"></span>
+			<span class="bar" style="width:88%"></span>
+			<span class="bar" style="width:62%"></span>
+			<div class="brief-skeleton__grid">
+				<span class="block"></span>
+				<span class="block"></span>
+			</div>
+		</div>
 	</section>
 {:then digest}
 	{#if digest}
-		<section class="card digest">
-			<div class="card__head">
-				<span class="card__title">🧠 AI Briefing</span>
-				<span class="chip {sentimentClass(digest.sentiment)}">
-					{SENTIMENTS[digest.sentiment].arrow}
-					{SENTIMENTS[digest.sentiment].label}
-				</span>
-				<span class="gen"
-					>Gemini · {digest.itemCount} articles · {relativeTime(digest.generatedAt)}</span
-				>
-			</div>
-			<div class="card__body">
-				<p class="digest__text">{digest.summary}</p>
-				{#if digest.signals.length}
-					<ul class="signals">
-						{#each digest.signals as g, i (i)}
-							<li class="signal">
-								<span class="signal__dot {kindClass(g.kind)}" title={g.kind}></span>
-								<span class="signal__text">{g.headline}</span>
-							</li>
-						{/each}
-					</ul>
-				{/if}
-			</div>
-		</section>
+		<Briefing
+			summary={digest.summary}
+			sentiment={digest.sentiment}
+			sentimentScore={digest.sentimentScore}
+			signals={digest.signals}
+			itemCount={digest.itemCount}
+			generatedAt={digest.generatedAt}
+			model={digest.model?.includes('gemini') ? 'Gemini' : digest.model}
+		/>
 	{/if}
 {/await}
 
@@ -160,60 +151,61 @@
 		max-width: 80ch;
 	}
 
-	.digest {
+	/* Placeholder that mirrors the briefing's real shape while Gemini streams. */
+	.brief-skeleton {
 		margin-bottom: 14px;
+		overflow: hidden;
 	}
-	.digest.loading {
+	.brief-skeleton__head {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		padding: 18px;
-		color: var(--text-2);
-		font-weight: 500;
+		padding: 14px 20px;
+		border-bottom: 1px solid var(--border);
+		background: linear-gradient(180deg, #f8faff, var(--surface));
 	}
-	.digest__text {
-		font-size: 14px;
-		line-height: 1.6;
-		color: var(--text);
-	}
-	.gen {
-		font-size: 12px;
+	.brief-skeleton__label {
+		font-size: 12.5px;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
 		color: var(--text-3);
-		margin-left: auto;
 	}
-	.signals {
+	.brief-skeleton__body {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		border-top: 1px solid var(--border);
-		margin-top: 12px;
-		padding-top: 12px;
+		gap: 10px;
+		padding: 22px 20px;
 	}
-	.signal {
-		display: flex;
-		gap: 9px;
-		align-items: baseline;
+	.brief-skeleton__grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+		margin-top: 8px;
 	}
-	.signal__dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		flex: none;
-		transform: translateY(1px);
+	.bar,
+	.block {
+		border-radius: 6px;
+		background: linear-gradient(90deg, var(--bg-soft) 25%, #e9edf3 50%, var(--bg-soft) 75%);
+		background-size: 400% 100%;
+		animation: shimmer 1.4s ease-in-out infinite;
 	}
-	.signal__dot.is-opp {
-		background: var(--info);
+	.bar {
+		height: 12px;
 	}
-	.signal__dot.is-risk {
-		background: var(--neg);
+	.block {
+		height: 62px;
+		border-radius: var(--radius-sm);
 	}
-	.signal__dot.is-neu {
-		background: var(--neutral);
+	@keyframes shimmer {
+		to {
+			background-position: -200% 0;
+		}
 	}
-	.signal__text {
-		font-size: 13px;
-		line-height: 1.45;
-		color: var(--text);
+	@media (max-width: 820px) {
+		.brief-skeleton__grid {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	.freshness {
