@@ -1,21 +1,33 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import type { ActionData, PageData } from './$types';
 	import { segmentDef } from '$lib/watch/segments';
 	import { relativeTime } from '$lib/watch/format';
 	import Monogram from '$lib/watch/components/Monogram.svelte';
 	import Briefing from '$lib/watch/components/Briefing.svelte';
 	import FeedCard from '$lib/watch/components/FeedCard.svelte';
 	import EmptyState from '$lib/watch/components/EmptyState.svelte';
+	import AccountWatchSetup from '$lib/watch/components/AccountWatchSetup.svelte';
+	import AccountWorkflow from '$lib/watch/components/AccountWorkflow.svelte';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const a = $derived(data.account);
 	const articleCount = $derived(data.items.length);
 	const last = $derived(data.items[0]?.publishedAt ?? data.items[0]?.fetchedAt ?? null);
 </script>
 
-<svelte:head><title>{a.name} · COSOL Customer Watch</title></svelte:head>
+<svelte:head><title>{a.name} · Account Intel</title></svelte:head>
 
 <a class="back" href="/watch/accounts">← Accounts</a>
+
+{#if form?.error}<p class="banner err">{form.error}</p>{/if}
+{#if form?.signalSaved}<p class="banner ok">
+		Signal “{form.signalSaved}” is now active for {a.name}.
+	</p>{/if}
+{#if form?.actionSaved}
+	<p class="banner ok">
+		{form.actionSaved === 'rfb' ? 'RFB opportunity' : 'Follow-up'} added to the tracker.
+	</p>
+{/if}
 
 <header class="head card">
 	<Monogram name={a.name} segment={a.segment} slug={a.slug} logoUrl={a.logoUrl} size={56} />
@@ -41,6 +53,11 @@
 		{#if a.description}<p class="head__desc">{a.description}</p>{/if}
 	</div>
 </header>
+
+{#if data.isAdmin}
+	<AccountWatchSetup signals={data.signals} selectedSignalId={data.selectedSignalId} />
+	<AccountWorkflow actions={data.actions} signals={data.signals} />
+{/if}
 
 <!-- AI briefing (streams in) -->
 {#await data.digest}
@@ -76,10 +93,18 @@
 <!-- Raw news (RSS knowledge base) -->
 <div class="card">
 	<div class="card__head">
-		<span class="card__title">📰 Latest News</span>
+		<div class="news-title">
+			<span class="card__title">📰 Business News</span>
+			{#if data.selectedSignalId}
+				<span class="filtered">
+					Filtered by {data.signals.find((signal) => signal.id === data.selectedSignalId)?.name}
+					<a href="?">×</a>
+				</span>
+			{/if}
+		</div>
 		<span class="freshness">
 			<span class="live__dot"></span>
-			Auto-refreshed daily via RSS · {articleCount} articles{#if last}
+			Strict business filter · auto-refreshed daily · {articleCount} articles{#if last}
 				· last {relativeTime(last)}{/if}
 		</span>
 	</div>
@@ -87,7 +112,7 @@
 		{#if data.items.length}
 			<div class="feed">
 				{#each data.items as item (item.id)}
-					<FeedCard {item} showAccount={false} />
+					<FeedCard {item} showAccount={false} adminActions={data.isAdmin} />
 				{/each}
 			</div>
 		{:else}
@@ -101,6 +126,20 @@
 </div>
 
 <style>
+	.banner {
+		padding: 10px 14px;
+		border-radius: 10px;
+		font-size: 13px;
+		margin-bottom: 12px;
+	}
+	.banner.ok {
+		background: var(--pos-bg);
+		color: var(--pos);
+	}
+	.banner.err {
+		background: var(--neg-bg);
+		color: var(--neg);
+	}
 	.back {
 		display: inline-block;
 		color: var(--text-3);
@@ -215,6 +254,27 @@
 		font-size: 12px;
 		font-weight: 600;
 		color: var(--accent-ink);
+	}
+	.news-title {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		flex-wrap: wrap;
+	}
+	.filtered {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 11px;
+		font-weight: 650;
+		color: var(--accent-ink);
+		background: rgba(14, 165, 183, 0.1);
+		padding: 3px 7px;
+		border-radius: 999px;
+	}
+	.filtered a {
+		font-size: 14px;
+		line-height: 1;
 	}
 	.spin {
 		width: 16px;

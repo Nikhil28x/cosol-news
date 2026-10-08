@@ -1,10 +1,17 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '../db';
-import { accounts, ingestionRuns, newsItems } from '../db/schema';
+import {
+	accountSignals,
+	accounts,
+	ingestionRuns,
+	newsItems,
+	newsSignalMatches
+} from '../db/schema';
 import type { Account, NewNewsItem } from '../db/schema';
 import { urlHash } from '../auth/crypto';
 import { getEnricher } from './enrich';
 import { filterRelevant } from './relevance';
+import { matchAccountSignals, type SignalProfile } from './signal-matching';
 import { googleNewsRss } from './sources/google-news-rss';
 
 export interface IngestResult {
@@ -33,10 +40,26 @@ export async function ingestAccount(
 		.returning({ id: ingestionRuns.id });
 
 	try {
+		const signalRows = await db
+			.select()
+			.from(accountSignals)
+			.where(and(eq(accountSignals.accountId, account.id), eq(accountSignals.isActive, true)));
+		const signals: SignalProfile[] = signalRows.map((signal) => ({
+			id: signal.id,
+			name: signal.name,
+			kind: signal.kind,
+			signalType: signal.signalType,
+			terms: signal.terms,
+			excludeTerms: signal.excludeTerms,
+			isPriority: signal.isPriority,
+			isActive: signal.isActive
+		}));
+
 		// 1. fetch, then drop off-topic hits (name collisions: "Bayer" the football club,
-		//    "Varian" the racehorse trainer, "Blum" the obituary listings)
-		const fetched = await source.fetch(account);
-		const articles = filterRelevant(account, fetched);
+		//    "Varian" the racehorse trainer, "Blum" the obituary listings). The positive
+		//    business gate also requires corporate language or a configured signal match.
+		const fetched = await source.fetch(account, signals);
+		const articles = filterRelevant(account, fetched, signals);
 		const dropped = fetched.length - articles.length;
 
 		// 2. dedupe within the batch by canonical url hash
@@ -73,7 +96,12 @@ export async function ingestAccount(
 		const doEnrich = opts.enrich !== false;
 		let enriched = 0;
 		const rows: NewNewsItem[] = [];
+		const matchesByHash = new Map<string, { accountSignalId: string; matchedTerms: string[] }[]>();
 		for (const { article, hash } of fresh) {
+			const signalMatches = matchAccountSignals(signals, article);
+			const primary = [...signalMatches].sort(
+				(a, b) => Number(b.signal.isPriority) - Number(a.signal.isPriority)
+			)[0]?.signal;
 			let e = null;
 			if (doEnrich) {
 				try {
@@ -94,21 +122,45 @@ export async function ingestAccount(
 				author: article.author,
 				imageUrl: article.imageUrl,
 				publishedAt: article.publishedAt,
-				signalType: e?.signalType ?? null,
-				impactLabel: e?.impactLabel ?? null,
-				impactKind: e?.impactKind ?? null,
+				signalType: e?.signalType ?? primary?.signalType ?? null,
+				impactLabel:
+					e?.impactLabel ??
+					(primary?.kind === 'rfb' ? 'Bid Opportunity' : primary ? 'Watch Match' : null),
+				impactKind: e?.impactKind ?? (primary?.kind === 'rfb' ? 'opportunity' : null),
 				sentiment: e?.sentiment ?? null,
 				sentimentScore: e?.sentimentScore ?? null,
-				isPriority: e?.isPriority ?? false,
+				isPriority: Boolean(e?.isPriority || primary?.isPriority),
+				businessRelevant: true,
 				enrichedAt: e ? new Date() : null,
 				enrichModel: e?.model ?? null,
 				raw: article
 			});
+			matchesByHash.set(
+				hash,
+				signalMatches.map((match) => ({
+					accountSignalId: match.signal.id,
+					matchedTerms: match.matchedTerms
+				}))
+			);
 		}
 
 		// 5. persist (unique index on (account_id, url_hash) guards races)
 		if (rows.length) {
-			await db.insert(newsItems).values(rows).onConflictDoNothing();
+			const inserted = await db
+				.insert(newsItems)
+				.values(rows)
+				.onConflictDoNothing()
+				.returning({ id: newsItems.id, urlHash: newsItems.urlHash });
+			const matchRows = inserted.flatMap((item) =>
+				(matchesByHash.get(item.urlHash) ?? []).map((match) => ({
+					newsItemId: item.id,
+					accountSignalId: match.accountSignalId,
+					matchedTerms: match.matchedTerms
+				}))
+			);
+			if (matchRows.length) {
+				await db.insert(newsSignalMatches).values(matchRows).onConflictDoNothing();
+			}
 		}
 
 		// 6. finalise the run

@@ -40,6 +40,11 @@ export type SignalType =
 export type ImpactKind = 'opportunity' | 'risk' | 'neutral';
 export type Sentiment = 'bullish' | 'neutral' | 'bearish';
 export type RunStatus = 'queued' | 'running' | 'success' | 'error';
+export type AccountSignalKind = 'watch' | 'rfb';
+export type ActionKind = 'follow_up' | 'rfb';
+export type ActionStatus =
+	'open' | 'in_progress' | 'waiting' | 'submitted' | 'won' | 'lost' | 'done';
+export type ActionPriority = 'normal' | 'high';
 
 const timestamps = {
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -160,6 +165,9 @@ export const newsItems = pgTable(
 		sentimentScore: real('sentiment_score'), // -1..1
 		trendPct: real('trend_pct'), // optional movement figure for the table
 		isPriority: boolean('is_priority').notNull().default(false),
+		// Hard read-time gate. Only rows that name the account and contain business
+		// language (or an explicit account signal) are eligible for customer feeds.
+		businessRelevant: boolean('business_relevant').notNull().default(false),
 		enrichedAt: timestamp('enriched_at', { withTimezone: true }),
 		enrichModel: text('enrich_model'),
 
@@ -171,6 +179,92 @@ export const newsItems = pgTable(
 		index('news_account_published_idx').on(t.accountId, t.publishedAt),
 		index('news_priority_idx').on(t.isPriority),
 		index('news_signal_type_idx').on(t.signalType)
+	]
+);
+
+// ---------------------------------------------------------------------------
+// Account intelligence — admin-managed, account-specific watch signals
+// ---------------------------------------------------------------------------
+export const accountSignals = pgTable(
+	'account_signals',
+	{
+		id: uuid('id').defaultRandom().primaryKey(),
+		accountId: uuid('account_id')
+			.notNull()
+			.references(() => accounts.id, { onDelete: 'cascade' }),
+		name: text('name').notNull(),
+		kind: text('kind').$type<AccountSignalKind>().notNull().default('watch'),
+		signalType: text('signal_type').$type<SignalType>().notNull().default('other'),
+		terms: jsonb('terms')
+			.$type<string[]>()
+			.notNull()
+			.default(sql`'[]'::jsonb`),
+		excludeTerms: jsonb('exclude_terms')
+			.$type<string[]>()
+			.notNull()
+			.default(sql`'[]'::jsonb`),
+		isPriority: boolean('is_priority').notNull().default(false),
+		isActive: boolean('is_active').notNull().default(true),
+		createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+		...timestamps
+	},
+	(t) => [
+		uniqueIndex('account_signals_account_name_uniq').on(t.accountId, t.name),
+		index('account_signals_account_idx').on(t.accountId),
+		index('account_signals_active_idx').on(t.isActive)
+	]
+);
+
+/** Many-to-many provenance: which configured account signals matched each story. */
+export const newsSignalMatches = pgTable(
+	'news_signal_matches',
+	{
+		newsItemId: uuid('news_item_id')
+			.notNull()
+			.references(() => newsItems.id, { onDelete: 'cascade' }),
+		accountSignalId: uuid('account_signal_id')
+			.notNull()
+			.references(() => accountSignals.id, { onDelete: 'cascade' }),
+		matchedTerms: jsonb('matched_terms')
+			.$type<string[]>()
+			.notNull()
+			.default(sql`'[]'::jsonb`),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [
+		primaryKey({ columns: [t.newsItemId, t.accountSignalId] }),
+		index('news_signal_matches_signal_idx').on(t.accountSignalId)
+	]
+);
+
+// ---------------------------------------------------------------------------
+// Account workflow — follow-ups and RFB opportunities, admin-only in phase one
+// ---------------------------------------------------------------------------
+export const accountActions = pgTable(
+	'account_actions',
+	{
+		id: uuid('id').defaultRandom().primaryKey(),
+		accountId: uuid('account_id')
+			.notNull()
+			.references(() => accounts.id, { onDelete: 'cascade' }),
+		newsItemId: uuid('news_item_id').references(() => newsItems.id, { onDelete: 'set null' }),
+		accountSignalId: uuid('account_signal_id').references(() => accountSignals.id, {
+			onDelete: 'set null'
+		}),
+		kind: text('kind').$type<ActionKind>().notNull().default('follow_up'),
+		status: text('status').$type<ActionStatus>().notNull().default('open'),
+		priority: text('priority').$type<ActionPriority>().notNull().default('normal'),
+		title: text('title').notNull(),
+		notes: text('notes'),
+		dueAt: timestamp('due_at', { withTimezone: true }),
+		assignedTo: uuid('assigned_to').references(() => users.id, { onDelete: 'set null' }),
+		createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+		...timestamps
+	},
+	(t) => [
+		index('account_actions_account_idx').on(t.accountId, t.status),
+		index('account_actions_due_idx').on(t.dueAt),
+		index('account_actions_news_idx').on(t.newsItemId)
 	]
 );
 
@@ -268,7 +362,10 @@ export const generalNews = pgTable(
 // ---------------------------------------------------------------------------
 export const usersRelations = relations(users, ({ many }) => ({
 	sessions: many(sessions),
-	userAccounts: many(userAccounts)
+	userAccounts: many(userAccounts),
+	createdSignals: many(accountSignals, { relationName: 'signalCreator' }),
+	assignedActions: many(accountActions, { relationName: 'actionAssignee' }),
+	createdActions: many(accountActions, { relationName: 'actionCreator' })
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -278,6 +375,8 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const accountsRelations = relations(accounts, ({ many }) => ({
 	userAccounts: many(userAccounts),
 	newsItems: many(newsItems),
+	accountSignals: many(accountSignals),
+	actions: many(accountActions),
 	quotes: many(marketQuotes)
 }));
 
@@ -286,8 +385,51 @@ export const userAccountsRelations = relations(userAccounts, ({ one }) => ({
 	account: one(accounts, { fields: [userAccounts.accountId], references: [accounts.id] })
 }));
 
-export const newsItemsRelations = relations(newsItems, ({ one }) => ({
-	account: one(accounts, { fields: [newsItems.accountId], references: [accounts.id] })
+export const newsItemsRelations = relations(newsItems, ({ one, many }) => ({
+	account: one(accounts, { fields: [newsItems.accountId], references: [accounts.id] }),
+	signalMatches: many(newsSignalMatches),
+	actions: many(accountActions)
+}));
+
+export const accountSignalsRelations = relations(accountSignals, ({ one, many }) => ({
+	account: one(accounts, { fields: [accountSignals.accountId], references: [accounts.id] }),
+	creator: one(users, {
+		fields: [accountSignals.createdBy],
+		references: [users.id],
+		relationName: 'signalCreator'
+	}),
+	matches: many(newsSignalMatches),
+	actions: many(accountActions)
+}));
+
+export const newsSignalMatchesRelations = relations(newsSignalMatches, ({ one }) => ({
+	newsItem: one(newsItems, {
+		fields: [newsSignalMatches.newsItemId],
+		references: [newsItems.id]
+	}),
+	accountSignal: one(accountSignals, {
+		fields: [newsSignalMatches.accountSignalId],
+		references: [accountSignals.id]
+	})
+}));
+
+export const accountActionsRelations = relations(accountActions, ({ one }) => ({
+	account: one(accounts, { fields: [accountActions.accountId], references: [accounts.id] }),
+	newsItem: one(newsItems, { fields: [accountActions.newsItemId], references: [newsItems.id] }),
+	accountSignal: one(accountSignals, {
+		fields: [accountActions.accountSignalId],
+		references: [accountSignals.id]
+	}),
+	assignee: one(users, {
+		fields: [accountActions.assignedTo],
+		references: [users.id],
+		relationName: 'actionAssignee'
+	}),
+	creator: one(users, {
+		fields: [accountActions.createdBy],
+		references: [users.id],
+		relationName: 'actionCreator'
+	})
 }));
 
 // ---- Inferred row types ----
@@ -298,6 +440,10 @@ export type Account = typeof accounts.$inferSelect;
 export type NewAccount = typeof accounts.$inferInsert;
 export type NewsItem = typeof newsItems.$inferSelect;
 export type NewNewsItem = typeof newsItems.$inferInsert;
+export type AccountSignal = typeof accountSignals.$inferSelect;
+export type NewAccountSignal = typeof accountSignals.$inferInsert;
+export type AccountAction = typeof accountActions.$inferSelect;
+export type NewAccountAction = typeof accountActions.$inferInsert;
 export type IngestionRun = typeof ingestionRuns.$inferSelect;
 export type NewsSummary = typeof newsSummaries.$inferSelect;
 export type GeneralNewsItem = typeof generalNews.$inferSelect;

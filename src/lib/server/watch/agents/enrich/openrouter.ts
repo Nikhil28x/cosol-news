@@ -7,14 +7,14 @@ import { heuristicEnricher } from './heuristics';
 const SIGNAL_KEYS = new Set(Object.keys(SIGNAL_TYPES));
 const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 
-const SYSTEM = `You are an analyst for COSOL, a B2B asset-management and enterprise technology services firm. You monitor news about COSOL's customer accounts and classify each item for an account-intelligence dashboard.
+const SYSTEM = `You are an analyst for a B2B asset-management and enterprise technology services firm. You monitor news about the firm's customer accounts and classify each item for an account-intelligence dashboard.
 
 Return ONLY a JSON object with these fields:
 - "detail": string, <= 120 chars, a crisp present-tense summary of what happened (no trailing publisher name).
 - "summary": string, 1-2 sentences of context.
 - "signal_type": one of ["expansion","regulatory","earnings","partnership","leadership","m_and_a","product","financial","legal","esg","contract","budget_cut","other"].
-- "impact_label": 2-3 words naming the impact to COSOL's relationship, e.g. "Upsell Opportunity", "Compliance Risk", "Revenue Risk", "New Project", "Renewal Strength".
-- "impact_kind": one of ["opportunity","risk","neutral"] (how it affects COSOL's account).
+- "impact_label": 2-3 words naming the impact to the firm's relationship, e.g. "Upsell Opportunity", "Compliance Risk", "Revenue Risk", "New Project", "Renewal Strength".
+- "impact_kind": one of ["opportunity","risk","neutral"] (how it affects the firm's account).
 - "sentiment": one of ["bullish","neutral","bearish"] (outlook for the customer).
 - "sentiment_score": number from -1 (very negative) to 1 (very positive).
 - "is_priority": boolean, true only when materially important or time-sensitive (big deals, contract risk, leadership change, regulatory action).`;
@@ -81,8 +81,7 @@ async function classify(account: Account, article: RawArticle, apiKey: string, m
 			headers: {
 				authorization: `Bearer ${apiKey}`,
 				'content-type': 'application/json',
-				'HTTP-Referer': 'https://cosol.in',
-				'X-Title': 'COSOL Customer Watch'
+				'X-Title': 'Account Intel'
 			},
 			body: JSON.stringify({
 				model,

@@ -36,7 +36,7 @@
 	};
 </script>
 
-<svelte:head><title>{data.u.fullName} · Admin · COSOL Customer Watch</title></svelte:head>
+<svelte:head><title>{data.u.fullName} · Admin · Account Intel</title></svelte:head>
 
 <a class="back" href="/watch/admin">← All users</a>
 

@@ -17,8 +17,7 @@ export async function* streamChat(
 		headers: {
 			authorization: `Bearer ${apiKey}`,
 			'content-type': 'application/json',
-			'HTTP-Referer': 'https://cosol.in',
-			'X-Title': 'COSOL Customer Watch'
+			'X-Title': 'Account Intel'
 		},
 		body: JSON.stringify({
 			model,

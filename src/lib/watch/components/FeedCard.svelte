@@ -6,7 +6,13 @@
 	import ImpactChip from './ImpactChip.svelte';
 	import Trend from './Trend.svelte';
 
-	let { item, showAccount = true }: { item: FeedItem; showAccount?: boolean } = $props();
+	let {
+		item,
+		showAccount = true,
+		adminActions = false
+	}: { item: FeedItem; showAccount?: boolean; adminActions?: boolean } = $props();
+	const rfbSignal = $derived(item.watchSignals?.find((signal) => signal.kind === 'rfb'));
+	const firstSignal = $derived(item.watchSignals?.[0]);
 </script>
 
 <article class="feed-item" class:is-priority={item.isPriority}>
@@ -49,7 +55,31 @@
 		<div class="feed-item__chips">
 			{#if item.signalType}<SignalChip type={item.signalType} />{/if}
 			<ImpactChip kind={item.impactKind} label={item.impactLabel} />
+			{#each item.watchSignals ?? [] as signal (signal.id)}
+				<span class="watch-chip" class:rfb={signal.kind === 'rfb'}>
+					{signal.kind === 'rfb' ? 'RFB' : 'Watch'} · {signal.name}
+				</span>
+			{/each}
 		</div>
+
+		{#if adminActions}
+			<div class="feed-item__actions">
+				<form method="POST" action="?/createAction">
+					<input type="hidden" name="kind" value="follow_up" />
+					<input type="hidden" name="newsItemId" value={item.id} />
+					<input type="hidden" name="signalId" value={firstSignal?.id ?? ''} />
+					<input type="hidden" name="title" value={`Follow up: ${item.title}`} />
+					<button>+ Follow up</button>
+				</form>
+				<form method="POST" action="?/createAction">
+					<input type="hidden" name="kind" value="rfb" />
+					<input type="hidden" name="newsItemId" value={item.id} />
+					<input type="hidden" name="signalId" value={rfbSignal?.id ?? firstSignal?.id ?? ''} />
+					<input type="hidden" name="title" value={`RFB: ${item.title}`} />
+					<button class="rfb-action">Track RFB</button>
+				</form>
+			</div>
+		{/if}
 	</div>
 
 	<div class="feed-item__trend">
@@ -127,6 +157,42 @@
 		gap: 6px;
 		flex-wrap: wrap;
 		margin-top: 2px;
+	}
+	.watch-chip {
+		display: inline-flex;
+		align-items: center;
+		padding: 3px 8px;
+		border-radius: 999px;
+		font-size: 11px;
+		font-weight: 650;
+		color: var(--accent-ink);
+		background: rgba(14, 165, 183, 0.1);
+	}
+	.watch-chip.rfb {
+		color: var(--warn);
+		background: var(--warn-bg);
+	}
+	.feed-item__actions {
+		display: flex;
+		gap: 6px;
+		margin-top: 3px;
+	}
+	.feed-item__actions button {
+		font-size: 11.5px;
+		font-weight: 650;
+		color: var(--accent-ink);
+		padding: 4px 8px;
+		border: 1px solid rgba(14, 165, 183, 0.24);
+		border-radius: 7px;
+		background: rgba(14, 165, 183, 0.05);
+	}
+	.feed-item__actions button:hover {
+		background: rgba(14, 165, 183, 0.11);
+	}
+	.feed-item__actions .rfb-action {
+		color: var(--warn);
+		border-color: rgba(183, 121, 31, 0.25);
+		background: var(--warn-bg);
 	}
 	.feed-item__trend {
 		flex: none;

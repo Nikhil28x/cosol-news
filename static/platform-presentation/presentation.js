@@ -24,7 +24,7 @@ function show(index, updateHash = true) {
 	progress.style.width = `${((current + 1) / slides.length) * 100}%`;
 	previous.disabled = current === 0;
 	next.disabled = current === slides.length - 1;
-	document.title = `${slides[current].dataset.title} · COSOL Customer Watch`;
+	document.title = `${slides[current].dataset.title} · Account Intel`;
 	if (updateHash) history.replaceState(null, '', `#slide-${current + 1}`);
 }
 

@@ -8,7 +8,7 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<svelte:head><title>Dashboard · COSOL Customer Watch</title></svelte:head>
+<svelte:head><title>Dashboard · Account Intel</title></svelte:head>
 
 {#if data.mode === 'ai'}
 	<AdminHome

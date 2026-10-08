@@ -21,7 +21,7 @@ const messages: ChatMessage[] = [
 	{
 		role: 'system',
 		content:
-			'You are the COSOL Customer Watch intelligence assistant. Answer using ONLY the context. Name real accounts. Be concise.'
+			'You are the Account Intel intelligence assistant. Answer using ONLY the context. Name real accounts. Be concise.'
 	},
 	{ role: 'system', content: `ACCOUNTS:\n${accounts}\n\nRELEVANT NEWS:\n${news}` },
 	{ role: 'user', content: question }

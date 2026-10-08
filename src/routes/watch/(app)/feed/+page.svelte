@@ -14,7 +14,7 @@
 	}
 </script>
 
-<svelte:head><title>News Feed · COSOL Customer Watch</title></svelte:head>
+<svelte:head><title>News Feed · Account Intel</title></svelte:head>
 
 <div class="head">
 	<h1>

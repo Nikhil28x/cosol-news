@@ -92,8 +92,7 @@ async function chat(
 			headers: {
 				authorization: `Bearer ${apiKey}`,
 				'content-type': 'application/json',
-				'HTTP-Referer': 'https://cosol.in',
-				'X-Title': 'COSOL Customer Watch'
+				'X-Title': 'Account Intel'
 			},
 			body: JSON.stringify({
 				model,
@@ -116,7 +115,7 @@ async function chat(
 	}
 }
 
-const DASHBOARD_SYSTEM = `You are a senior account-intelligence analyst at COSOL (a B2B enterprise technology and services firm). You are given recent news headlines about the customer accounts a COSOL account manager is responsible for, grouped by sector. Produce an executive briefing.
+const DASHBOARD_SYSTEM = `You are a senior account-intelligence analyst at a B2B enterprise technology and services firm. You are given recent news headlines about the customer accounts an account manager at the firm is responsible for, grouped by sector. Produce an executive briefing.
 
 Return ONLY a JSON object:
 {
@@ -136,11 +135,11 @@ Return ONLY a JSON object:
 }
 Rules: use ONLY the sector keys provided; at most 5 signals per sector, most material first; signals must be grounded in the provided headlines (name the real account). Be concise and specific — no filler.`;
 
-const ACCOUNT_SYSTEM = `You are a senior account-intelligence analyst at COSOL. Given recent news headlines about ONE customer account, write a briefing.
+const ACCOUNT_SYSTEM = `You are a senior account-intelligence analyst at a B2B enterprise technology and services firm. Given recent news headlines about ONE customer account, write a briefing.
 
 Return ONLY a JSON object:
 {
-  "summary": "3-5 sentences: what's happening with this account and why it matters to COSOL",
+  "summary": "3-5 sentences: what's happening with this account and why it matters to the firm",
   "sentiment": "bullish" | "neutral" | "bearish",
   "sentiment_score": <number -1..1>,
   "signals": [ { "headline": "<short signal>", "account": "<account name>", "kind": "opportunity" | "risk" | "neutral" } ]

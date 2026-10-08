@@ -1,5 +1,6 @@
 import type { ImpactKind, Sentiment, SignalType } from '$lib/watch/types';
 import type { Account } from '../db/schema';
+import type { SignalProfile } from './signal-matching';
 
 /** A normalised article as returned by any source adapter. */
 export interface RawArticle {
@@ -32,5 +33,5 @@ export interface Enricher {
 
 export interface Source {
 	name: string;
-	fetch(account: Account): Promise<RawArticle[]>;
+	fetch(account: Account, signals?: SignalProfile[]): Promise<RawArticle[]>;
 }

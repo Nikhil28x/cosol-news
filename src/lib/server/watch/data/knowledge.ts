@@ -139,8 +139,17 @@ export async function retrieveContext(
 				.select(ARTICLE_COLS)
 				.from(newsItems)
 				.innerJoin(accounts, eq(newsItems.accountId, accounts.id))
-				.where(and(eq(accounts.isActive, true), sql`${doc} @@ websearch_to_tsquery('english', ${q})`))
-				.orderBy(desc(sql`ts_rank(${doc}, websearch_to_tsquery('english', ${q}))`), desc(newsItems.fetchedAt))
+				.where(
+					and(
+						eq(accounts.isActive, true),
+						eq(newsItems.businessRelevant, true),
+						sql`${doc} @@ websearch_to_tsquery('english', ${q})`
+					)
+				)
+				.orderBy(
+					desc(sql`ts_rank(${doc}, websearch_to_tsquery('english', ${q}))`),
+					desc(newsItems.fetchedAt)
+				)
 				.limit(limit)
 		: [];
 
@@ -150,7 +159,13 @@ export async function retrieveContext(
 				.select(ARTICLE_COLS)
 				.from(newsItems)
 				.innerJoin(accounts, eq(newsItems.accountId, accounts.id))
-				.where(and(eq(accounts.isActive, true), inArray(newsItems.accountId, matchedAccountIds)))
+				.where(
+					and(
+						eq(accounts.isActive, true),
+						eq(newsItems.businessRelevant, true),
+						inArray(newsItems.accountId, matchedAccountIds)
+					)
+				)
 				.orderBy(desc(newsItems.fetchedAt))
 				.limit(limit)
 		: [];
@@ -165,6 +180,7 @@ export async function retrieveContext(
 			.where(
 				and(
 					eq(accounts.isActive, true),
+					eq(newsItems.businessRelevant, true),
 					matchedSegments.length ? inArray(accounts.segment, matchedSegments) : undefined
 				)
 			)
@@ -177,7 +193,12 @@ export async function retrieveContext(
 	const seen = new Set<string>();
 	const merged: RetrievedArticle[] = [];
 	const half = Math.ceil(limit / 2);
-	const ordered = [...namedRows.slice(0, half), ...ftsRows, ...namedRows.slice(half), ...fallbackRows];
+	const ordered = [
+		...namedRows.slice(0, half),
+		...ftsRows,
+		...namedRows.slice(half),
+		...fallbackRows
+	];
 	for (const r of ordered) {
 		if (seen.has(r.id)) continue;
 		seen.add(r.id);

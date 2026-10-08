@@ -1,5 +1,5 @@
 /**
- * Canonical customer segments — the sidebar taxonomy for COSOL's portfolio
+ * Canonical customer segments — the sidebar taxonomy for the portfolio
  * (India BFSI / government / technology / manufacturing / pharma / services).
  * Segment keys are stored on `accounts.segment`; `classifyAccountSegment()` derives
  * one from an account name at seed time (see scripts/build-seed.ts).

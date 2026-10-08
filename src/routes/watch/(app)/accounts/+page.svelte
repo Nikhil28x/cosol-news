@@ -16,7 +16,7 @@
 		k === 'opportunity' ? 'is-opp' : k === 'risk' ? 'is-risk' : 'is-neu';
 </script>
 
-<svelte:head><title>{heading} · COSOL Customer Watch</title></svelte:head>
+<svelte:head><title>{heading} · Account Intel</title></svelte:head>
 
 <div class="head">
 	<h1>{heading}</h1>

@@ -38,7 +38,7 @@
 
 <aside class="sidebar">
 	<a href="/watch/dashboard" class="brand">
-		<img class="brand__logo" src="/cosol-logo.svg" alt="COSOL" width="609" height="203" />
+		<img class="brand__logo" src="/account-intel-logo.svg" alt="Account Intel" width="609" height="203" />
 		<small class="brand__sub">Customer Watch</small>
 	</a>
 

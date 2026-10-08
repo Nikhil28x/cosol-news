@@ -1,9 +1,12 @@
-# COSOL Customer Watch (`cosol-news`)
+# Account Intel
 
-A per-user, account-scoped customer-intelligence platform. Each COSOL person logs in and
+A per-user, account-scoped customer-intelligence platform. Each team member logs in and
 sees **only the accounts assigned to them** (their POD) plus a **live news/signals feed**
 for those accounts, populated by automated research agents (Google News RSS → dedupe →
 AI/heuristic enrichment → persist).
+
+Admins can also configure account-specific watch signals, filter each account's feed to a
+signal, create follow-ups from a story, and track RFB/bid opportunities through completion.
 
 Standalone SvelteKit 2 + Svelte 5 (runes) app. Backed by Supabase Postgres via Drizzle ORM.
 Bespoke UI (no Tailwind). The app is served under `/watch` (root `/` redirects there).

@@ -22,6 +22,20 @@
       "when": 1784136915876,
       "tag": "0002_add_general_news",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786356641507,
+      "tag": "0003_shiny_maestro",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786357097674,
+      "tag": "0004_refine_business_gate",
+      "breakpoints": true
     }
   ]
 }

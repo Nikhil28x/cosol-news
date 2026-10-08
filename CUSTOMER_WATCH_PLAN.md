@@ -1,11 +1,11 @@
-# COSOL Customer Watch — Plan & Implementation
+# Account Intel — Plan & Implementation
 
-> A per-user, account-scoped intelligence platform. Each COSOL person logs in and
+> A per-user, account-scoped intelligence platform. Each team member logs in and
 > sees **only their accounts** and a **live news/signals feed** for those accounts,
 > populated by automated research + search agents that fetch, scrape, enrich, and
 > classify real-world data.
 
-Reference UI: the attached "COSOL Customers Watch" dashboard (segments sidebar,
+Reference UI: the attached "Account Intel" dashboard (segments sidebar,
 KPI cards, Key Customer Signals table, Priority Alerts, Sector Sentiment, Client
 Stock Watch). We rebuild this **cleaner and more systematic**, not pixel-for-pixel.
 
@@ -14,7 +14,7 @@ Stock Watch). We rebuild this **cleaner and more systematic**, not pixel-for-pix
 ## ✅ Status (built & verified)
 
 The platform is implemented and live end-to-end against Supabase with the **real
-COSOL portfolio**: 131 accounts across 5 PODs (Ashwini, Shruthi, Ojas, Sowmya, Sowmya1).
+portfolio**: 131 accounts across 5 PODs (Ashwini, Shruthi, Ojas, Sowmya, Sowmya1).
 
 - **DB**: Drizzle schema (8 tables) migrated to Supabase (Tokyo pooler, IPv4).
 - **Auth**: session cookies + `hooks.server.ts`, login/logout, forced password change;
@@ -68,7 +68,7 @@ npm run db:check            # verify DB connectivity
 
 ## 2. Where it lives
 
-A **standalone SvelteKit app** in this repo (`cosol-news`). It is its own product — no
+A **standalone SvelteKit app** in this repo. It is its own product — no
 marketing site, no Ringg AI, no Three.js/Tailwind. The app is served under `/watch`:
 
 ```

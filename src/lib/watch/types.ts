@@ -26,6 +26,11 @@ export type SignalType =
 export type ImpactKind = 'opportunity' | 'risk' | 'neutral';
 export type Sentiment = 'bullish' | 'neutral' | 'bearish';
 export type RunStatus = 'queued' | 'running' | 'success' | 'error';
+export type AccountSignalKind = 'watch' | 'rfb';
+export type ActionKind = 'follow_up' | 'rfb';
+export type ActionStatus =
+	'open' | 'in_progress' | 'waiting' | 'submitted' | 'won' | 'lost' | 'done';
+export type ActionPriority = 'normal' | 'high';
 
 /** The session user shape exposed to the browser (never includes the hash). */
 export interface AuthUser {
@@ -103,6 +108,15 @@ export interface StorySource {
 	title: string;
 }
 
+export interface AccountSignalRef {
+	id: string;
+	name: string;
+	kind: AccountSignalKind;
+	signalType: SignalType;
+	isPriority: boolean;
+	matchedTerms?: string[];
+}
+
 export interface FeedItem {
 	id: string;
 	title: string;
@@ -122,7 +136,45 @@ export interface FeedItem {
 	account: AccountRef;
 	/** Other publishers covering the same event, collapsed into this lead (see clusterStories). */
 	moreSources?: StorySource[];
+	/** Admin-configured, account-specific watch signals matched to this story. */
+	watchSignals?: AccountSignalRef[];
 }
+
+export interface AccountSignalView extends AccountSignalRef {
+	terms: string[];
+	excludeTerms: string[];
+	isActive: boolean;
+	matchCount: number;
+	createdAt: Date;
+}
+
+export interface AccountActionView {
+	id: string;
+	kind: ActionKind;
+	status: ActionStatus;
+	priority: ActionPriority;
+	title: string;
+	notes: string | null;
+	dueAt: Date | null;
+	createdAt: Date;
+	updatedAt: Date;
+	newsItemId: string | null;
+	newsTitle: string | null;
+	newsUrl: string | null;
+	signalId: string | null;
+	signalName: string | null;
+	assigneeName: string | null;
+}
+
+export const ACTION_STATUS_LABELS: Record<ActionStatus, string> = {
+	open: 'Open',
+	in_progress: 'In progress',
+	waiting: 'Waiting',
+	submitted: 'Submitted',
+	won: 'Won',
+	lost: 'Lost',
+	done: 'Done'
+};
 
 export interface SegmentCount {
 	key: string;

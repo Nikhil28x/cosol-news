@@ -1,4 +1,4 @@
-# How COSOL Customer Watch works — RSS ingestion + Gemini digests
+# How Account Intel works — RSS ingestion + Gemini digests
 
 Two clean stages: **(A)** a daily RSS fetch builds a news knowledge base (no AI per
 article), and **(B)** Gemini reads that knowledge base to write the dashboard's
@@ -39,21 +39,37 @@ For **every active account**, `agents/orchestrator.ts → ingestAccount(account,
 2. **Fetch** (`agents/sources/google-news-rss.ts`): Google News RSS (free, no key, India/AU
    locale) → parsed into `{title, url, publisher, publishedAt, snippet}` (title cleaned, HTML
    stripped, 15s timeout). This is the pluggable "source" — Tavily/NewsAPI can be added here.
-3. **Guardrails** (`agents/relevance.ts`) — two gates, both must pass:
+3. **Guardrails** (`agents/relevance.ts`) — three gates, all must pass:
    - **Mention gate:** the article must actually name the customer. Google News answers a
      query with whatever it deems related, so without this an account collects sector
      chatter that never names it ("AIIMS seat allocation" under NIMHANS). Matching covers
      the account name, aliases, curated variants, parenthetical abbreviations
      ("… (NPCIL)"), split names ("TATA ELECTRONICS//PEGATRON"), squashed forms
      (`SUNPHARMA` = "Sun Pharma"), diacritics ("Mondelēz") and the ticker in upper case.
-   - **Off-topic gate:** the article must read as business news. Decisive markers
+   - **Off-topic gate:** decisive markers
      (Leverkusen, jockey, midfielder) reject outright; softer ones (cricket, box office,
      "arrested") reject only when the text carries no business marker, so a bank's IPL
      sponsorship or a media house's box-office story stays.
+   - **Positive business gate:** a story must contain explicit corporate language (financials,
+     leadership, procurement, contracts, technology, regulation, operations, and similar) or
+     match an active account-specific signal. A generic name mention is no longer enough.
 
-   When the press calls an account something else — TKM is "Toyota Kirloskar Motor",
-   Vantiv is "Worldpay" — add the alias in `agents/disambiguation.ts`; it feeds both the
-   query and the mention gate.
+### Account-specific signals, follow-ups, and RFBs (admin phase)
+
+On an account page, admins can add a named watch signal with include terms, exclusions,
+category, priority, and a tracking mode (`watch` or `RFB`). Each daily refresh still runs the
+broad account query, then adds bounded signal-specific Google News queries to improve recall.
+Matches are persisted in `news_signal_matches`, so the account feed can be filtered by the
+configured signal and every match retains its provenance.
+
+The same account page has an admin-only workflow tracker. A follow-up or RFB can be created
+manually or directly from a news story, then moved through status, priority, and due-date
+stages. These durable records live in `account_actions`; member UI remains unchanged during
+this first phase.
+
+When the press calls an account something else — TKM is "Toyota Kirloskar Motor",
+Vantiv is "Worldpay" — add the alias in `agents/disambiguation.ts`; it feeds both the
+query and the mention gate.
 
 4. **Dedupe**: canonical URL hash (`auth/crypto.ts` — strips `utm_*`/`gclid`, SHA-256).
    Skips anything already stored for that account; a unique `(account_id, url_hash)` index is
@@ -78,7 +94,7 @@ OPENROUTER_MODEL=google/gemini-2.5-flash
 - Gathers the **last 14 days** of the user's accounts' news, **grouped by sector**
   (≤25 items/sector to bound tokens).
 - **One** Gemini call (`agents/summarise.ts → summariseDashboard`) with a system prompt to act
-  as a COSOL analyst and return strict JSON: a **portfolio summary + sentiment**, and for
+  as an account-intelligence analyst and return strict JSON: a **portfolio summary + sentiment**, and for
   **each sector** a `summary`, `sentiment` and up to 5 **signals**
   `{headline, account, kind: opportunity|risk|neutral}` grounded in the real headlines.
 - Result is normalised (enums clamped) and **cached in `news_summaries`** as one row keyed by
@@ -116,7 +132,7 @@ Three ways to run the daily `refreshAll`, pick per environment:
 - **Local / self-hosted:** `npm run watch:scheduler` — a long-running process that fires
   `refreshAll` every day at `REFRESH_HOUR` (default **6**) in the machine's local time zone.
   Keep it alive under pm2 / launchd / a container. Add `--now` to also run immediately.
-- **OS cron alternative:** a crontab line — `0 6 * * * cd /path/to/cosol-news && npm run watch:ingest`.
+- **OS cron alternative:** a crontab line — `0 6 * * * cd /path/to/account-intel && npm run watch:ingest`.
 - **Manual:** `npm run watch:ingest`, or the Admin "Run ingestion" button.
 - **Housekeeping:** `npm run watch:prune` reports off-topic articles already stored (rows
   ingested before the relevance guard existed); `npm run watch:prune -- --apply` deletes

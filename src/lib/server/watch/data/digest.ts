@@ -58,17 +58,30 @@ export async function getDashboardCounts(user: AuthUser): Promise<DashboardCount
 		db
 			.select({ c: count() })
 			.from(newsItems)
-			.where(A(newsScope, gte(newsItems.fetchedAt, startOfTodayUTC()))),
-		db.select({ c: count() }).from(newsItems).where(A(newsScope)),
-		db.select({ c: countDistinct(newsItems.source) }).from(newsItems).where(A(newsScope)),
+			.where(
+				A(
+					newsScope,
+					eq(newsItems.businessRelevant, true),
+					gte(newsItems.fetchedAt, startOfTodayUTC())
+				)
+			),
+		db
+			.select({ c: count() })
+			.from(newsItems)
+			.where(A(newsScope, eq(newsItems.businessRelevant, true))),
+		db
+			.select({ c: countDistinct(newsItems.source) })
+			.from(newsItems)
+			.where(A(newsScope, eq(newsItems.businessRelevant, true))),
 		db
 			.select({ last: sql<Date | null>`max(${newsItems.fetchedAt})` })
 			.from(newsItems)
-			.where(A(newsScope))
+			.where(A(newsScope, eq(newsItems.businessRelevant, true)))
 	]);
 
 	const segCount = new Map<string, number>();
-	for (const r of segRows) segCount.set(r.segment ?? 'other', (segCount.get(r.segment ?? 'other') ?? 0) + Number(r.c));
+	for (const r of segRows)
+		segCount.set(r.segment ?? 'other', (segCount.get(r.segment ?? 'other') ?? 0) + Number(r.c));
 	const segments: SegmentCount[] = SEGMENTS.map((s) => ({
 		key: s.key,
 		label: s.label,
@@ -129,6 +142,7 @@ export async function getDashboardDigest(
 			A(
 				ids !== 'all' ? inArray(newsItems.accountId, ids) : undefined,
 				eq(accounts.isActive, true),
+				eq(newsItems.businessRelevant, true),
 				gte(newsItems.fetchedAt, since)
 			)
 		)
@@ -149,7 +163,8 @@ export async function getDashboardDigest(
 		}
 		set.add(r.account);
 		const arr = groups.get(key) ?? [];
-		if (arr.length < 25) arr.push({ account: r.account, title: r.title, date: isoDay(r.publishedAt ?? r.fetchedAt) });
+		if (arr.length < 25)
+			arr.push({ account: r.account, title: r.title, date: isoDay(r.publishedAt ?? r.fetchedAt) });
 		groups.set(key, arr);
 	}
 	const sectorsInput: SectorInput[] = [...groups.entries()].map(([key, items]) => ({
@@ -181,7 +196,14 @@ export async function getDashboardDigest(
 
 	await db
 		.insert(newsSummaries)
-		.values({ kind: 'dashboard', scopeKey: user.id, day, payload: digest, model: res.model, itemCount: rows.length })
+		.values({
+			kind: 'dashboard',
+			scopeKey: user.id,
+			day,
+			payload: digest,
+			model: res.model,
+			itemCount: rows.length
+		})
 		.onConflictDoUpdate({
 			target: [newsSummaries.kind, newsSummaries.scopeKey, newsSummaries.day],
 			set: { payload: digest, model: res.model, itemCount: rows.length, createdAt: new Date() }
@@ -221,7 +243,13 @@ export async function getAccountDigest(
 			fetchedAt: newsItems.fetchedAt
 		})
 		.from(newsItems)
-		.where(and(eq(newsItems.accountId, account.id), gte(newsItems.fetchedAt, since)))
+		.where(
+			and(
+				eq(newsItems.accountId, account.id),
+				eq(newsItems.businessRelevant, true),
+				gte(newsItems.fetchedAt, since)
+			)
+		)
 		.orderBy(desc(sql`coalesce(${newsItems.publishedAt}, ${newsItems.fetchedAt})`))
 		.limit(40);
 	if (!rows.length) return null;
@@ -231,7 +259,11 @@ export async function getAccountDigest(
 		res = await summariseAccount({
 			name: account.name,
 			segment: segmentDef(account.segment).label,
-			items: rows.map((r) => ({ title: r.title, source: r.source, date: isoDay(r.publishedAt ?? r.fetchedAt) }))
+			items: rows.map((r) => ({
+				title: r.title,
+				source: r.source,
+				date: isoDay(r.publishedAt ?? r.fetchedAt)
+			}))
 		});
 	} catch (err) {
 		console.warn(`[digest] account summarise failed: ${(err as Error).message}`);
@@ -250,7 +282,14 @@ export async function getAccountDigest(
 
 	await db
 		.insert(newsSummaries)
-		.values({ kind: 'account', scopeKey: account.id, day, payload: digest, model: res.model, itemCount: rows.length })
+		.values({
+			kind: 'account',
+			scopeKey: account.id,
+			day,
+			payload: digest,
+			model: res.model,
+			itemCount: rows.length
+		})
 		.onConflictDoUpdate({
 			target: [newsSummaries.kind, newsSummaries.scopeKey, newsSummaries.day],
 			set: { payload: digest, model: res.model, itemCount: rows.length, createdAt: new Date() }

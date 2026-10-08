@@ -9,7 +9,7 @@
 	const rest = $derived(data.news.slice(3));
 </script>
 
-<svelte:head><title>General Tech · COSOL Customer Watch</title></svelte:head>
+<svelte:head><title>General Tech · Account Intel</title></svelte:head>
 
 <div class="head">
 	<div class="head__id">

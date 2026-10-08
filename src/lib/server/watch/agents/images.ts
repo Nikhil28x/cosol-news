@@ -6,7 +6,7 @@
  * Fully guarded and best-effort — any failure returns null and the tile falls back to
  * its accent gradient. Run as a capped background pass after the daily ingest.
  */
-import { desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { db } from '../db';
 import { newsItems } from '../db/schema';
 
@@ -155,7 +155,7 @@ export async function enrichImagesForRecent(
 	const rows = await db
 		.select({ id: newsItems.id, url: newsItems.url })
 		.from(newsItems)
-		.where(isNull(newsItems.imageUrl))
+		.where(and(isNull(newsItems.imageUrl), eq(newsItems.businessRelevant, true)))
 		.orderBy(desc(newsItems.fetchedAt))
 		.limit(cap);
 

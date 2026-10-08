@@ -4,7 +4,7 @@ import { streamChat, type ChatMessage } from '$lib/server/watch/agents/chat-stre
 import { searchGoogleNews } from '$lib/server/watch/agents/sources/google-news-rss';
 import type { RequestHandler } from './$types';
 
-const SYSTEM = `You are the COSOL Customer Watch intelligence assistant — a sharp analyst for an admin monitoring the firm's customer accounts. Your knowledge base has ACCOUNTS (the tracked customers), the TEAM (internal PODs/owners who manage them), and recent NEWS collected about those accounts. For questions about companies OUTSIDE the tracked portfolio (prospects, competitors, any public company), you may also be given LIVE WEB NEWS from a fresh Google News search.
+const SYSTEM = `You are the Account Intel intelligence assistant — a sharp analyst for an admin monitoring the firm's customer accounts. Your knowledge base has ACCOUNTS (the tracked customers), the TEAM (internal PODs/owners who manage them), and recent NEWS collected about those accounts. For questions about companies OUTSIDE the tracked portfolio (prospects, competitors, any public company), you may also be given LIVE WEB NEWS from a fresh Google News search.
 
 Be a genuinely useful analyst — concise, specific, analytical (short paragraphs, tight bullets; surface risks and opportunities):
 - The tracked portfolio (ACCOUNTS / TEAM / NEWS) is your authoritative source. When referencing a tracked development, name the real account(s), and NEVER fabricate accounts, PODs, tickers, figures, or headlines for tracked customers.
@@ -12,18 +12,18 @@ Be a genuinely useful analyst — concise, specific, analytical (short paragraph
 - If neither the portfolio nor the live results fully cover something, say briefly what's missing, then still give whatever accurate, clearly-labelled context you can.
 Do NOT refuse just because a company isn't in the knowledge base, and don't claim you "can't access external sites" — you have live news and general knowledge; use them.`;
 
-// When the question is about a specific company, COSOL's priority is always the same:
+// When the question is about a specific company, our priority is always the same:
 // how is this company expanding/investing, what are its India-specific growth plans, and
-// what is its financial output — because that is where COSOL can win work. Every
+// what is its financial output — because that is where we can win work. Every
 // company/account answer is structured around those pillars.
-const COMPANY_FORMAT = `RESPONSE FORMAT — this question is about a specific company. COSOL's goal when researching ANY company is its expansion, investment, India-specific growth, and financial output (that's where COSOL sells). Structure the answer EXACTLY like this, in order:
+const COMPANY_FORMAT = `RESPONSE FORMAT — this question is about a specific company. Our goal when researching ANY company is its expansion, investment, India-specific growth, and financial output (that's where we sell). Structure the answer EXACTLY like this, in order:
 
 Open with a one-sentence bottom line on the company.
 
 **🏗 Expansion & Investment** — new plants/facilities, capacity additions, capex, acquisitions, JVs, partnerships, major hiring.
 **🇮🇳 India Growth Plans** — India-specific strategy, investments, market entry/expansion, localisation, government/regulatory moves.
 **📊 Financial Output** — latest revenue, profit, earnings/results, margins and guidance — always include the figure and period when the sources have them.
-**🎯 COSOL Angle** — one line: the concrete opportunity or risk this represents for COSOL.
+**🎯 Our Angle** — one line: the concrete opportunity or risk this represents for us.
 
 Rules: tight bullets under each heading; lead with the most material item; include real figures and dates from the NEWS / LIVE WEB NEWS (or clearly-labelled general knowledge). If a section has nothing, write "No recent signals." under it rather than padding. Never fabricate numbers, deals, or headlines.`;
 
@@ -160,7 +160,7 @@ interface LiveArticle {
 	date: string | null;
 }
 
-// COSOL cares most about expansion, investment, India growth and financials — bias the
+// We care most about expansion, investment, India growth and financials — bias the
 // live search toward those signals, then top up with the latest general news.
 const SIGNAL_TERMS =
 	'(expansion OR investment OR capex OR capacity OR factory OR plant OR acquisition OR partnership OR revenue OR profit OR earnings OR results OR guidance OR India OR "growth plans")';

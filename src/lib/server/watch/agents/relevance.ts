@@ -18,6 +18,7 @@
  */
 import type { Account } from '../db/schema';
 import { disambiguationFor } from './disambiguation';
+import { matchAccountSignals, type SignalProfile } from './signal-matching';
 import type { RawArticle } from './types';
 
 /** Club football and horse racing — never how a customer's corporate news reads. */
@@ -46,7 +47,7 @@ const PERSONAL =
 
 /** Anything that makes an item legitimate corporate/sector news. */
 const BUSINESS =
-	/\b(revenue|earnings|profit|quarter(ly)?|q[1-4] (results|earnings|fy)|fy\d|results|guidance|dividend|ebitda|shares?|stock|share price|market cap|investor|analyst|ipo|valuation|acquisition|acquire[sd]?|merger|takeover|divest|funding|contract|tender|order book|partnership|joint venture|customer|client|product|platform|patent|trademark|lawsuit|litigation|settlement|regulator|regulatory|compliance|probe|tariff|export|import|supply chain|manufactur\w*|factory|plant|facility|capacity|expansion|layoffs?|workforce|union contract|ceo|cfo|coo|chairman|chairperson|managing director|board|clinical|trial|fda|usfda|\bema\b|drug|medicine|vaccine|therapy|therapeutic|oncology|patients?|hospital|healthcare|diagnostic|pharma\w*|generic|recall|approval|approved|bank(ing)?|deposits?|loans?|\bnpa\b|\brbi\b|\bsebi\b|sponsor(s|ed|ship)?|title rights|whistleblower|employees?|staff|workplace|harassment|fraud|scam|bribery|money laundering|data breach)\b/i;
+	/\b(revenue|earnings|profit|quarter(ly)?|q[1-4] (results|earnings|fy)|fy\d|results|guidance|dividend|ebitda|shares?|stock|share price|market cap|investor|analyst|ipo|valuation|acquisition|acquire[sd]?|merger|takeover|divest|funding|contract|tender|request for (bid|proposal|quotation)|invitation to bid|\brfb\b|\brfp\b|\brfq\b|\beoi\b|procurement|bidder|order book|purchase order|partnership|joint venture|customer|client|product|platform|patent|trademark|lawsuit|litigation|settlement|regulator|regulatory|compliance|probe|tariff|export|import|supply chain|manufactur\w*|factory|plant|facility|capacity|expansion|investment|capital expenditure|capex|digital transformation|technology|software|cloud|cybersecurity|data cent(re|er)|erp|sap|oracle|layoffs?|workforce|union contract|ceo|cfo|coo|chairman|chairperson|managing director|board|appoint(s|ed|ment)?|resign(s|ed|ation)?|clinical|trial|fda|usfda|\bema\b|drug|medicine|vaccine|therapy|therapeutic|oncology|patients?|hospital|healthcare|diagnostic|pharma\w*|generic|recall|approval|approved|bank(ing)?|deposits?|loans?|\bnpa\b|\brbi\b|\bsebi\b|sponsor(s|ed|ship)?|title rights|whistleblower|employees?|staff|workplace|harassment|fraud|scam|bribery|money laundering|data breach)\b/i;
 
 function haystack(article: Pick<RawArticle, 'title' | 'summary'>): string {
 	return `${article.title}. ${article.summary ?? ''}`;
@@ -284,18 +285,35 @@ export function isOffTopic(
 	return false;
 }
 
+/**
+ * Positive business gate. Unlike `isOffTopic`, this deliberately rejects generic
+ * name mentions that contain neither corporate language nor a configured account
+ * signal. This is the strict default used by ingestion and all customer feeds.
+ */
+export function isBusinessNews(
+	account: Pick<Account, 'segment'>,
+	article: Pick<RawArticle, 'title' | 'summary'>,
+	signals: SignalProfile[] = []
+): boolean {
+	if (isOffTopic(account, article)) return false;
+	if (BUSINESS.test(haystack(article))) return true;
+	return matchAccountSignals(signals, article).length > 0;
+}
+
 /** Both gates: the article names the account AND reads as business news. */
 export function isRelevantForAccount(
 	account: MentionTarget & Pick<Account, 'segment'>,
-	article: Pick<RawArticle, 'title' | 'summary'>
+	article: Pick<RawArticle, 'title' | 'summary'>,
+	signals: SignalProfile[] = []
 ): boolean {
-	return mentionsAccount(account, article) && !isOffTopic(account, article);
+	return mentionsAccount(account, article) && isBusinessNews(account, article, signals);
 }
 
 /** Keep only the articles that are genuinely about this account. */
 export function filterRelevant<T extends Pick<RawArticle, 'title' | 'summary'>>(
 	account: MentionTarget & Pick<Account, 'segment'>,
-	articles: T[]
+	articles: T[],
+	signals: SignalProfile[] = []
 ): T[] {
-	return articles.filter((a) => isRelevantForAccount(account, a));
+	return articles.filter((a) => isRelevantForAccount(account, a, signals));
 }

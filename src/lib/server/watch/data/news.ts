@@ -1,7 +1,7 @@
 import { and, desc, eq, gte, inArray, sql, type SQL } from 'drizzle-orm';
 import type { AuthUser, FeedItem, ImpactKind, Sentiment, SignalType } from '$lib/watch/types';
 import { db } from '../db';
-import { accounts, newsItems } from '../db/schema';
+import { accounts, newsItems, newsSignalMatches } from '../db/schema';
 import { accessibleAccountIds } from './access';
 import { clusterStories } from '$lib/watch/cluster';
 
@@ -89,6 +89,10 @@ export interface FeedOpts {
 	signalType?: string;
 	sentiment?: string;
 	priorityOnly?: boolean;
+	/** Restrict to stories matched by one admin-configured account watch signal. */
+	watchSignalId?: string;
+	/** Strict business-news gate. Defaults to true for every product feed. */
+	businessOnly?: boolean;
 	sinceDays?: number;
 	limit?: number;
 	offset?: number;
@@ -105,6 +109,7 @@ export async function getFeed(user: AuthUser, opts: FeedOpts = {}): Promise<Feed
 	if (ids !== 'all' && ids.length === 0) return [];
 
 	const conds: SQL[] = [eq(accounts.isActive, true)];
+	if (opts.businessOnly !== false) conds.push(eq(newsItems.businessRelevant, true));
 	if (ids !== 'all') conds.push(inArray(newsItems.accountId, ids));
 	if (opts.accountIds) {
 		if (opts.accountIds.length === 0) return [];
@@ -115,6 +120,17 @@ export async function getFeed(user: AuthUser, opts: FeedOpts = {}): Promise<Feed
 	if (opts.signalType) conds.push(eq(newsItems.signalType, opts.signalType as SignalType));
 	if (opts.sentiment) conds.push(eq(newsItems.sentiment, opts.sentiment as Sentiment));
 	if (opts.priorityOnly) conds.push(eq(newsItems.isPriority, true));
+	if (opts.watchSignalId) {
+		conds.push(
+			inArray(
+				newsItems.id,
+				db
+					.select({ id: newsSignalMatches.newsItemId })
+					.from(newsSignalMatches)
+					.where(eq(newsSignalMatches.accountSignalId, opts.watchSignalId))
+			)
+		);
+	}
 	if (opts.sinceDays) {
 		const since = new Date(Date.now() - opts.sinceDays * 86_400_000);
 		conds.push(gte(newsItems.fetchedAt, since));

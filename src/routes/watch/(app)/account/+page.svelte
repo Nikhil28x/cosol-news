@@ -5,7 +5,7 @@
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 </script>
 
-<svelte:head><title>My Account · COSOL Customer Watch</title></svelte:head>
+<svelte:head><title>My Account · Account Intel</title></svelte:head>
 
 <div class="wrap">
 	<section class="card">

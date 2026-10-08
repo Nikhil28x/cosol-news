@@ -12,7 +12,7 @@
 	const selected = $derived(data.accounts.find((a) => a.id === selectedId) ?? null);
 </script>
 
-<svelte:head><title>Admin · COSOL Customer Watch</title></svelte:head>
+<svelte:head><title>Admin · Account Intel</title></svelte:head>
 
 {#if form?.error}<p class="banner err">{form.error}</p>{/if}
 {#if form?.created}
@@ -38,6 +38,9 @@
 	<div class="ov__card"><span>{data.overview.users}</span><small>Users</small></div>
 	<div class="ov__card"><span>{data.overview.accounts}</span><small>Accounts</small></div>
 	<div class="ov__card"><span>{data.overview.news}</span><small>News items</small></div>
+	<div class="ov__card"><span>{data.overview.signals}</span><small>Account signals</small></div>
+	<div class="ov__card"><span>{data.overview.followUps}</span><small>Follow-ups</small></div>
+	<div class="ov__card"><span>{data.overview.rfbs}</span><small>RFBs tracked</small></div>
 	<div class="ov__card"><span>{data.overview.runs}</span><small>Ingestion runs</small></div>
 </section>
 
@@ -103,7 +106,7 @@
 				>
 			</div>
 			<span class="sel__count">{selected.newsCount} news items</span>
-			<span class="sel__open">Open →</span>
+			<span class="sel__open">Configure watch →</span>
 		</a>
 	{/if}
 	<div class="card__body pad0">
@@ -142,7 +145,7 @@
 	<div class="card__body">
 		<form method="POST" action="?/createUser" use:enhance class="urow">
 			<input class="input" name="fullName" placeholder="Full name" required />
-			<input class="input" name="email" type="email" placeholder="email@cosol.in" required />
+			<input class="input" name="email" type="email" placeholder="email@company.com" required />
 			<input class="input" name="pod" placeholder="POD (optional)" />
 			<select class="input" name="role">
 				<option value="member">Member</option>
@@ -219,7 +222,7 @@
 	}
 	.ov {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
 		gap: 14px;
 		margin-bottom: 16px;
 	}

@@ -6,13 +6,13 @@
 	let submitting = $state(false);
 </script>
 
-<svelte:head><title>Sign in · COSOL Customer Watch</title></svelte:head>
+<svelte:head><title>Sign in · Account Intel</title></svelte:head>
 
 <div class="login">
 	<div class="login__panel">
 		<div class="login__brand">
 			<span class="login__logobox">
-				<img src="/cosol-logo.svg" alt="COSOL" width="609" height="203" />
+				<img src="/account-intel-logo.svg" alt="Account Intel" width="609" height="203" />
 			</span>
 			<small>Customer Watch</small>
 		</div>
@@ -44,7 +44,7 @@
 					autocomplete="username"
 					required
 					value={form?.email ?? ''}
-					placeholder="you@cosol.in"
+					placeholder="you@company.com"
 				/>
 			</div>
 
@@ -66,10 +66,10 @@
 			</button>
 		</form>
 
-		<p class="login__foot">Access is provisioned by your COSOL administrator.</p>
+		<p class="login__foot">Access is provisioned by your administrator.</p>
 	</div>
 
-	<footer class="login__copy">COSOL Customer Watch · Enterprise Secure</footer>
+	<footer class="login__copy">Account Intel · Enterprise Secure</footer>
 </div>
 
 <style>

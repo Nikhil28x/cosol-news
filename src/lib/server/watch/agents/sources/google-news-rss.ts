@@ -1,6 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import type { Account } from '../../db/schema';
-import { buildQuery } from '../query';
+import { buildQuery, buildSignalQuery } from '../query';
+import type { SignalProfile } from '../signal-matching';
 import type { RawArticle, Source } from '../types';
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' });
@@ -45,7 +46,7 @@ async function fetchTextWithTimeout(
 			signal: ctrl.signal,
 			headers: {
 				'user-agent':
-					'Mozilla/5.0 (compatible; COSOLCustomerWatch/1.0; +https://cosol.in) news-aggregator',
+					'Mozilla/5.0 (compatible; AccountIntel/1.0) news-aggregator',
 				accept: 'application/rss+xml, application/xml, text/xml'
 			}
 		});
@@ -63,7 +64,7 @@ function toDate(v: unknown): Date | null {
 }
 
 /**
- * Google News RSS — free, no key. India locale (COSOL's accounts are Indian). The
+ * Google News RSS — free, no key. India locale (the tracked accounts are Indian). The
  * item link is a Google redirect URL (kept as the canonical url); `source` holds the
  * originating publisher, and Google appends " - Publisher" to titles which we trim.
  */
@@ -117,7 +118,22 @@ export async function searchGoogleNews(
 
 export const googleNewsRss: Source = {
 	name: 'google-news-rss',
-	fetch(account: Account): Promise<RawArticle[]> {
-		return searchGoogleNews(buildQuery(account, { windowDays: 30 }));
+	async fetch(account: Account, signals: SignalProfile[] = []): Promise<RawArticle[]> {
+		// Always retain broad account coverage, then add bounded signal-specific searches.
+		// A duplicate URL is collapsed before it reaches ingestion.
+		const queries = [
+			buildQuery(account, { windowDays: 30 }),
+			...signals
+				.filter((signal) => signal.isActive !== false && signal.terms.length > 0)
+				.slice(0, 8)
+				.map((signal) => buildSignalQuery(account, signal, { windowDays: 60 }))
+		];
+		const batches = await Promise.all(queries.map((query) => searchGoogleNews(query)));
+		const seen = new Set<string>();
+		return batches.flat().filter((article) => {
+			if (seen.has(article.url)) return false;
+			seen.add(article.url);
+			return true;
+		});
 	}
 };

@@ -40,7 +40,12 @@ async function main() {
 		})
 		.from(newsItems)
 		.innerJoin(accounts, eq(newsItems.accountId, accounts.id))
-		.where(or(isNull(newsItems.enrichModel), ne(newsItems.enrichModel, MODEL)))
+		.where(
+			and(
+				eq(newsItems.businessRelevant, true),
+				or(isNull(newsItems.enrichModel), ne(newsItems.enrichModel, MODEL))
+			)
+		)
 		.limit(LIMIT ?? 1_000_000);
 
 	console.log(`Re-enriching ${rows.length} items with ${MODEL} (concurrency ${CONCURRENCY})…\n`);
